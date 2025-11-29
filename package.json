@@ -1,0 +1,45 @@
+{
+  "name": "@hit/sdk",
+  "version": "1.0.0",
+  "description": "Strongly-typed TypeScript client libraries for Hit platform microservices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"No tests yet\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "hit",
+    "sdk",
+    "microservices",
+    "typescript"
+  ],
+  "author": "Hitcents, Inc.",
+  "license": "PROPRIETARY",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "zod": "^3.24.0"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": true
+    }
+  }
+}
+
