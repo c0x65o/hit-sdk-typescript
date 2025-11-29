@@ -97,5 +97,33 @@ export async function login(
   return getDefaultClient().login(email, password, twoFactorCode);
 }
 
+export async function verifyEmail(email: string, code: string): Promise<Record<string, unknown>> {
+  return getDefaultClient().verifyEmail(email, code);
+}
+
+export async function enableTwoFactor(email: string): Promise<Record<string, unknown>> {
+  return getDefaultClient().enableTwoFactor(email);
+}
+
+export async function verifyTwoFactor(email: string, code: string): Promise<Record<string, unknown>> {
+  return getDefaultClient().verifyTwoFactor(email, code);
+}
+
+export async function oauthUrl(provider: string): Promise<Record<string, unknown>> {
+  return getDefaultClient().oauthUrl(provider);
+}
+
+export async function oauthCallback(provider: string, oauthCode: string): Promise<AuthTokenResponse> {
+  return getDefaultClient().oauthCallback(provider, oauthCode);
+}
+
+export async function config(): Promise<FeatureConfig> {
+  return getDefaultClient().config();
+}
+
+export async function features(): Promise<FeatureConfig> {
+  return getDefaultClient().features();
+}
+
 export const auth = getDefaultClient();
 
