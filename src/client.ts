@@ -100,7 +100,16 @@ export class HitClient {
       if (error instanceof Error && error.name === 'AbortError') {
         throw new HitAPIError(`Request timeout after ${this.timeout}ms`, 0);
       }
-      throw new HitAPIError(`Request failed: ${error}`, 0);
+      // Provide more helpful error messages for connection failures
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('ERR_CONNECTION_REFUSED') || errorMessage.includes('connection')) {
+        throw new HitAPIError(
+          `Cannot connect to service at ${this.baseUrl}. Make sure the service is running. ` +
+          `For Hit modules, start with: hit services run <module-name>`,
+          0
+        );
+      }
+      throw new HitAPIError(`Request failed: ${errorMessage}`, 0);
     }
   }
 
@@ -139,7 +148,16 @@ export class HitClient {
       if (error instanceof Error && error.name === 'AbortError') {
         throw new HitAPIError(`Request timeout after ${this.timeout}ms`, 0);
       }
-      throw new HitAPIError(`Request failed: ${error}`, 0);
+      // Provide more helpful error messages for connection failures
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('ERR_CONNECTION_REFUSED') || errorMessage.includes('connection')) {
+        throw new HitAPIError(
+          `Cannot connect to service at ${this.baseUrl}. Make sure the service is running. ` +
+          `For Hit modules, start with: hit services run <module-name>`,
+          0
+        );
+      }
+      throw new HitAPIError(`Request failed: ${errorMessage}`, 0);
     }
   }
 
