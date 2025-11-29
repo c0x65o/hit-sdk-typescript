@@ -67,8 +67,12 @@ export class AuthClient {
     });
   }
 
-  async features(): Promise<FeatureConfig> {
+  async config(): Promise<FeatureConfig> {
     return this.client.get<FeatureConfig>('/config');
+  }
+
+  async features(): Promise<FeatureConfig> {
+    return this.client.get<FeatureConfig>('/features');
   }
 }
 

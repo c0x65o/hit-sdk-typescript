@@ -36,6 +36,10 @@ export class EmailClient {
   async config(): Promise<Record<string, unknown>> {
     return this.client.get<Record<string, unknown>>('/config');
   }
+
+  async features(): Promise<Record<string, unknown>> {
+    return this.client.get<Record<string, unknown>>('/features');
+  }
 }
 
 let defaultClient: EmailClient | null = null;
