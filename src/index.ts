@@ -26,3 +26,9 @@ export {
 } from './pingPong.js';
 export type { CounterResponse } from './pingPong.js';
 
+export { EmailClient, email, sendEmail } from './email.js';
+export type { SendEmailPayload, EmailResponse } from './email.js';
+
+export { AuthClient, auth } from './auth.js';
+export type { AuthTokenResponse, FeatureConfig } from './auth.js';
+
