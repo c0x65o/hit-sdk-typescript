@@ -14,3 +14,5 @@
 export { HitClient, HitAPIError } from './client.js';
 export { getServiceUrl, getNamespace, getApiKey } from './config.js';
 export { PingPongClient, pingPong, getCounter, increment, reset, } from './pingPong.js';
+export { EmailClient, email, sendEmail } from './email.js';
+export { AuthClient, auth, register, login, verifyEmail, enableTwoFactor, verifyTwoFactor, oauthUrl, oauthCallback, config as authConfig, features as authFeatures, } from './auth.js';

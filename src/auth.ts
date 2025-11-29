@@ -23,7 +23,7 @@ export class AuthClient {
     this.client = new HitClient({
       baseUrl: options.baseUrl || getServiceUrl('auth'),
       namespace: options.namespace || getNamespace(),
-      apiKey: options.apiKey || getApiKey('auth'),
+      apiKey: options.apiKey || getApiKey('auth') || undefined,
       timeout: options.timeout ?? 15000,
     });
   }
