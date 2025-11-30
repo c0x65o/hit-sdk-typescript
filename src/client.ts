@@ -5,7 +5,10 @@
  * - Error handling
  * - Request/response handling
  * - Common headers
+ * - Automatic token injection
  */
+
+import { getTokenManager } from './token';
 
 export class HitAPIError extends Error {
   statusCode: number;
@@ -44,7 +47,7 @@ export class HitClient {
     this.timeout = options.timeout || 30000;
   }
 
-  private getHeaders(): Record<string, string> {
+  private async getHeaders(): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'User-Agent': 'hit-sdk-typescript/1.0.0',
@@ -56,6 +59,13 @@ export class HitClient {
 
     if (this.apiKey) {
       headers['X-Hit-API-Key'] = this.apiKey;
+    } else {
+      // Try to get project token automatically
+      const tokenManager = getTokenManager();
+      const token = await tokenManager.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
     }
 
     return headers;
@@ -82,9 +92,10 @@ export class HitClient {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
+      const headers = await this.getHeaders();
       const response = await fetch(url.toString(), {
         method: 'GET',
-        headers: this.getHeaders(),
+        headers,
         signal: controller.signal,
       });
 
@@ -129,9 +140,10 @@ export class HitClient {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
+      const headers = await this.getHeaders();
       const response = await fetch(url.toString(), {
         method: 'POST',
-        headers: this.getHeaders(),
+        headers,
         body: body ? JSON.stringify(body) : undefined,
         signal: controller.signal,
       });
