@@ -5,6 +5,7 @@
  * - Error handling
  * - Request/response handling
  * - Common headers
+ * - Automatic token injection
  */
 export declare class HitAPIError extends Error {
     statusCode: number;

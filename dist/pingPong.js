@@ -25,6 +25,14 @@ export class PingPongClient {
         const baseUrl = options.baseUrl || getServiceUrl('ping-pong');
         const namespace = options.namespace || getNamespace();
         const apiKey = options.apiKey || getApiKey('ping-pong') || undefined;
+        // Debug logging in development
+        if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') {
+            console.debug('[Hit SDK] PingPongClient initialized:', {
+                baseUrl,
+                namespace,
+                hasApiKey: !!apiKey,
+            });
+        }
         this.client = new HitClient({
             baseUrl,
             namespace,

@@ -5,7 +5,9 @@
  * - Error handling
  * - Request/response handling
  * - Common headers
+ * - Automatic token injection
  */
+import { getTokenManager } from './token';
 export class HitAPIError extends Error {
     constructor(message, statusCode, response) {
         super(message);
@@ -26,7 +28,7 @@ export class HitClient {
         this.apiKey = options.apiKey;
         this.timeout = options.timeout || 30000;
     }
-    getHeaders() {
+    async getHeaders() {
         const headers = {
             'Content-Type': 'application/json',
             'User-Agent': 'hit-sdk-typescript/1.0.0',
@@ -36,6 +38,14 @@ export class HitClient {
         }
         if (this.apiKey) {
             headers['X-Hit-API-Key'] = this.apiKey;
+        }
+        else {
+            // Try to get project token automatically
+            const tokenManager = getTokenManager();
+            const token = await tokenManager.getToken();
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
         }
         return headers;
     }
@@ -48,8 +58,17 @@ export class HitClient {
      * @throws HitAPIError on API error
      */
     async get(path, params) {
+        if (!this.baseUrl) {
+            throw new HitAPIError('Base URL is not set. Configure service URL via HIT_<SERVICE>_URL environment variable or hit.yaml', 0);
+        }
         const urlPath = path.startsWith('/') ? path : `/${path}`;
-        const url = new URL(urlPath, this.baseUrl);
+        let url;
+        try {
+            url = new URL(urlPath, this.baseUrl);
+        }
+        catch (error) {
+            throw new HitAPIError(`Invalid base URL: ${this.baseUrl}. Make sure it's a valid URL (e.g., http://localhost:8099)`, 0);
+        }
         if (params) {
             Object.entries(params).forEach(([key, value]) => {
                 url.searchParams.append(key, value);
@@ -58,9 +77,10 @@ export class HitClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
         try {
+            const headers = await this.getHeaders();
             const response = await fetch(url.toString(), {
                 method: 'GET',
-                headers: this.getHeaders(),
+                headers,
                 signal: controller.signal,
             });
             clearTimeout(timeoutId);
@@ -92,14 +112,24 @@ export class HitClient {
      * @throws HitAPIError on API error
      */
     async post(path, body) {
+        if (!this.baseUrl) {
+            throw new HitAPIError('Base URL is not set. Configure service URL via HIT_<SERVICE>_URL environment variable or hit.yaml', 0);
+        }
         const urlPath = path.startsWith('/') ? path : `/${path}`;
-        const url = new URL(urlPath, this.baseUrl);
+        let url;
+        try {
+            url = new URL(urlPath, this.baseUrl);
+        }
+        catch (error) {
+            throw new HitAPIError(`Invalid base URL: ${this.baseUrl}. Make sure it's a valid URL (e.g., http://localhost:8099)`, 0);
+        }
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
         try {
+            const headers = await this.getHeaders();
             const response = await fetch(url.toString(), {
                 method: 'POST',
-                headers: this.getHeaders(),
+                headers,
                 body: body ? JSON.stringify(body) : undefined,
                 signal: controller.signal,
             });

@@ -80,8 +80,24 @@ export class HitClient {
    * @throws HitAPIError on API error
    */
   async get<T = unknown>(path: string, params?: Record<string, string>): Promise<T> {
+    if (!this.baseUrl) {
+      throw new HitAPIError(
+        'Base URL is not set. Configure service URL via HIT_<SERVICE>_URL environment variable or hit.yaml',
+        0
+      );
+    }
+
     const urlPath = path.startsWith('/') ? path : `/${path}`;
-    const url = new URL(urlPath, this.baseUrl);
+    let url: URL;
+    try {
+      url = new URL(urlPath, this.baseUrl);
+    } catch (error) {
+      throw new HitAPIError(
+        `Invalid base URL: ${this.baseUrl}. Make sure it's a valid URL (e.g., http://localhost:8099)`,
+        0
+      );
+    }
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         url.searchParams.append(key, value);
@@ -133,8 +149,23 @@ export class HitClient {
    * @throws HitAPIError on API error
    */
   async post<T = unknown>(path: string, body?: unknown): Promise<T> {
+    if (!this.baseUrl) {
+      throw new HitAPIError(
+        'Base URL is not set. Configure service URL via HIT_<SERVICE>_URL environment variable or hit.yaml',
+        0
+      );
+    }
+
     const urlPath = path.startsWith('/') ? path : `/${path}`;
-    const url = new URL(urlPath, this.baseUrl);
+    let url: URL;
+    try {
+      url = new URL(urlPath, this.baseUrl);
+    } catch (error) {
+      throw new HitAPIError(
+        `Invalid base URL: ${this.baseUrl}. Make sure it's a valid URL (e.g., http://localhost:8099)`,
+        0
+      );
+    }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);

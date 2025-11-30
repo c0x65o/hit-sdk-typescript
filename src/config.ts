@@ -30,22 +30,39 @@ const isNode = typeof process !== 'undefined' &&
  * @returns Service URL (e.g., "http://localhost:8099")
  */
 export function getServiceUrl(serviceName: string): string {
-  // Normalize service name for env var (ping-pong -> PINGPONG)
-  const envKey = `HIT_${serviceName.toUpperCase().replace('-', '_')}_URL`;
+  // Normalize service name for env var (ping-pong -> PING_PONG)
+  // Replace all dashes with underscores
+  const normalizedName = serviceName.toUpperCase().replace(/-/g, '_');
+  const envKey = `HIT_${normalizedName}_URL`;
 
-  // 1. Check environment variable
-  if (isNode && process.env[envKey]) {
-    return process.env[envKey];
+  // 1. Check environment variable (try both with and without underscores for compatibility)
+  if (isNode) {
+    // Try HIT_PING_PONG_URL first (with underscores)
+    if (process.env[envKey]) {
+      return process.env[envKey];
+    }
+    // Also try HIT_PINGPONG_URL (without underscores) for backward compatibility
+    const compactKey = `HIT_${serviceName.toUpperCase().replace(/-/g, '')}_URL`;
+    if (process.env[compactKey]) {
+      return process.env[compactKey];
+    }
   }
 
   // In browser, check if env var was injected by bundler
   if (typeof window !== 'undefined') {
     // Next.js and other bundlers can inject NEXT_PUBLIC_ vars
-    const publicEnvKey = `NEXT_PUBLIC_HIT_${serviceName.toUpperCase().replace('-', '_')}_URL`;
+    const publicEnvKey = `NEXT_PUBLIC_HIT_${normalizedName}_URL`;
     // @ts-ignore - dynamic env access
     if (typeof process !== 'undefined' && process.env && process.env[publicEnvKey]) {
       // @ts-ignore
       return process.env[publicEnvKey];
+    }
+    // Also try compact version
+    const compactPublicKey = `NEXT_PUBLIC_HIT_${serviceName.toUpperCase().replace(/-/g, '')}_URL`;
+    // @ts-ignore
+    if (typeof process !== 'undefined' && process.env && process.env[compactPublicKey]) {
+      // @ts-ignore
+      return process.env[compactPublicKey];
     }
   }
 
@@ -217,7 +234,9 @@ export function getNamespace(): string {
  * @returns API key or null if not set
  */
 export function getApiKey(serviceName: string): string | null {
-  const envKey = `HIT_${serviceName.toUpperCase().replace('-', '_')}_API_KEY`;
+  // Normalize service name (replace all dashes with underscores)
+  const normalizedName = serviceName.toUpperCase().replace(/-/g, '_');
+  const envKey = `HIT_${normalizedName}_API_KEY`;
   
   if (isNode && process.env[envKey]) {
     return process.env[envKey];
