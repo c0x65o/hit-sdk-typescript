@@ -1,6 +1,6 @@
 {
   "name": "@hit/sdk",
-  "version": "1.0.4",
+  "version": "1.1.1",
   "description": "Strongly-typed TypeScript client libraries for Hit platform microservices",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,10 +10,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./ui": {
+      "types": "./dist/ui/index.d.ts",
+      "import": "./dist/ui/index.js",
+      "default": "./dist/ui/index.js"
+    },
+    "./ui/styles.css": "./dist/ui/styles.css"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp src/ui/styles.css dist/ui/",
     "prepare": "npm run build",
     "test": "echo \"No tests yet\"",
     "prepublishOnly": "npm run build"
@@ -22,7 +28,8 @@
     "hit",
     "sdk",
     "microservices",
-    "typescript"
+    "typescript",
+    "server-driven-ui"
   ],
   "author": "Hitcents, Inc.",
   "license": "PROPRIETARY",
@@ -32,12 +39,17 @@
   ],
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@types/react": "^18.2.0",
     "typescript": "^5.4.0"
   },
   "peerDependencies": {
+    "react": "^18.0.0",
     "zod": "^3.24.0"
   },
   "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
     "zod": {
       "optional": true
     }

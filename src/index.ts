@@ -46,3 +46,20 @@ export {
 } from './auth.js';
 export type { AuthTokenResponse, FeatureConfig } from './auth.js';
 
+// UI System (Server-Driven UI for components)
+export {
+  HitUIRenderer,
+  HitUIFromEndpoint,
+  HitUIProvider,
+  useHitUI,
+  useHitUISpec,
+  useHitData,
+  useHitMutation,
+} from './ui/index.js';
+export type {
+  UISpec,
+  ActionSpec,
+  HitUIRendererProps,
+  ComponentRegistry,
+} from './ui/index.js';
+

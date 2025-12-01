@@ -47,6 +47,18 @@ export declare class PingPongClient {
      * @returns Reset counter value (always 0)
      */
     reset(counterId: string): Promise<number>;
+    /**
+     * Get ping-pong service configuration via /hit/config endpoint.
+     *
+     * @returns Configuration object including module settings
+     */
+    getConfig(): Promise<Record<string, unknown>>;
+    /**
+     * Get ping-pong service version via /hit/version endpoint.
+     *
+     * @returns Version object with module name and version
+     */
+    version(): Promise<Record<string, unknown>>;
 }
 /**
  * Get current counter value.
@@ -69,5 +81,17 @@ export declare function increment(counterId: string): Promise<number>;
  * @returns Reset counter value (always 0)
  */
 export declare function reset(counterId: string): Promise<number>;
+/**
+ * Get ping-pong service configuration via /hit/config endpoint.
+ *
+ * @returns Configuration object including module settings
+ */
+export declare function getConfig(): Promise<Record<string, unknown>>;
+/**
+ * Get ping-pong service version via /hit/version endpoint.
+ *
+ * @returns Version object with module name and version
+ */
+export declare function version(): Promise<Record<string, unknown>>;
 export declare const pingPong: PingPongClient;
 //# sourceMappingURL=pingPong.d.ts.map

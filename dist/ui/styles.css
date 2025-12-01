@@ -1,0 +1,807 @@
+/**
+ * Hit UI Component Styles
+ *
+ * Uses CSS custom properties (variables) for theming.
+ * Host apps can override these variables to match their design system.
+ */
+
+/* ============================================================================
+   CSS Variables (Theme)
+   ============================================================================ */
+
+:root {
+  /* Colors */
+  --hit-primary: #3b82f6;
+  --hit-primary-hover: #2563eb;
+  --hit-secondary: #6b7280;
+  --hit-secondary-hover: #4b5563;
+  --hit-success: #10b981;
+  --hit-warning: #f59e0b;
+  --hit-error: #ef4444;
+  --hit-info: #3b82f6;
+
+  /* Background */
+  --hit-bg: #ffffff;
+  --hit-bg-secondary: #f9fafb;
+  --hit-bg-tertiary: #f3f4f6;
+
+  /* Text */
+  --hit-text: #111827;
+  --hit-text-secondary: #6b7280;
+  --hit-text-muted: #9ca3af;
+
+  /* Borders */
+  --hit-border: #e5e7eb;
+  --hit-border-focus: #3b82f6;
+
+  /* Spacing */
+  --hit-space-xs: 0.25rem;
+  --hit-space-sm: 0.5rem;
+  --hit-space-md: 1rem;
+  --hit-space-lg: 1.5rem;
+  --hit-space-xl: 2rem;
+
+  /* Border Radius */
+  --hit-radius-sm: 0.25rem;
+  --hit-radius-md: 0.375rem;
+  --hit-radius-lg: 0.5rem;
+  --hit-radius-xl: 0.75rem;
+
+  /* Shadows */
+  --hit-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --hit-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --hit-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Typography */
+  --hit-font-family: system-ui, -apple-system, sans-serif;
+  --hit-font-size-sm: 0.875rem;
+  --hit-font-size-md: 1rem;
+  --hit-font-size-lg: 1.125rem;
+  --hit-font-size-xl: 1.25rem;
+  --hit-font-size-2xl: 1.5rem;
+  --hit-font-size-3xl: 1.875rem;
+
+  /* Transitions */
+  --hit-transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hit-bg: #111827;
+    --hit-bg-secondary: #1f2937;
+    --hit-bg-tertiary: #374151;
+    --hit-text: #f9fafb;
+    --hit-text-secondary: #d1d5db;
+    --hit-text-muted: #9ca3af;
+    --hit-border: #374151;
+  }
+}
+
+/* ============================================================================
+   Base Styles
+   ============================================================================ */
+
+.hit-ui-root {
+  font-family: var(--hit-font-family);
+  color: var(--hit-text);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   Page
+   ============================================================================ */
+
+.hit-page {
+  padding: var(--hit-space-lg);
+}
+
+.hit-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--hit-space-lg);
+  gap: var(--hit-space-md);
+}
+
+.hit-page-title {
+  font-size: var(--hit-font-size-2xl);
+  font-weight: 600;
+  margin: 0;
+}
+
+.hit-page-description {
+  font-size: var(--hit-font-size-md);
+  color: var(--hit-text-secondary);
+  margin: var(--hit-space-xs) 0 0;
+}
+
+.hit-page-actions {
+  display: flex;
+  gap: var(--hit-space-sm);
+}
+
+/* ============================================================================
+   Card
+   ============================================================================ */
+
+.hit-card {
+  background: var(--hit-bg);
+  border: 1px solid var(--hit-border);
+  border-radius: var(--hit-radius-lg);
+  box-shadow: var(--hit-shadow-sm);
+}
+
+.hit-card-header {
+  padding: var(--hit-space-md) var(--hit-space-lg);
+  border-bottom: 1px solid var(--hit-border);
+}
+
+.hit-card-title {
+  font-size: var(--hit-font-size-lg);
+  font-weight: 600;
+  margin: 0;
+}
+
+.hit-card-subtitle {
+  font-size: var(--hit-font-size-sm);
+  color: var(--hit-text-secondary);
+  margin: var(--hit-space-xs) 0 0;
+}
+
+.hit-card-content {
+  padding: var(--hit-space-lg);
+}
+
+.hit-card-footer {
+  padding: var(--hit-space-md) var(--hit-space-lg);
+  border-top: 1px solid var(--hit-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--hit-space-sm);
+}
+
+/* ============================================================================
+   Button
+   ============================================================================ */
+
+.hit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hit-space-sm);
+  font-family: inherit;
+  font-weight: 500;
+  border-radius: var(--hit-radius-md);
+  cursor: pointer;
+  transition: all var(--hit-transition);
+  border: 1px solid transparent;
+}
+
+.hit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.hit-btn-sm {
+  padding: var(--hit-space-xs) var(--hit-space-sm);
+  font-size: var(--hit-font-size-sm);
+}
+
+.hit-btn-md {
+  padding: var(--hit-space-sm) var(--hit-space-md);
+  font-size: var(--hit-font-size-md);
+}
+
+.hit-btn-lg {
+  padding: var(--hit-space-md) var(--hit-space-lg);
+  font-size: var(--hit-font-size-lg);
+}
+
+/* Variants */
+.hit-btn-primary {
+  background: var(--hit-primary);
+  color: white;
+}
+
+.hit-btn-primary:hover:not(:disabled) {
+  background: var(--hit-primary-hover);
+}
+
+.hit-btn-secondary {
+  background: var(--hit-bg-tertiary);
+  color: var(--hit-text);
+}
+
+.hit-btn-secondary:hover:not(:disabled) {
+  background: var(--hit-border);
+}
+
+.hit-btn-outline {
+  background: transparent;
+  border-color: var(--hit-border);
+  color: var(--hit-text);
+}
+
+.hit-btn-outline:hover:not(:disabled) {
+  background: var(--hit-bg-secondary);
+}
+
+.hit-btn-ghost {
+  background: transparent;
+  color: var(--hit-text);
+}
+
+.hit-btn-ghost:hover:not(:disabled) {
+  background: var(--hit-bg-secondary);
+}
+
+.hit-btn-danger {
+  background: var(--hit-error);
+  color: white;
+}
+
+.hit-btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+/* Loading */
+.hit-btn-loading {
+  position: relative;
+  color: transparent;
+}
+
+.hit-btn-spinner {
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: hit-spin 0.6s linear infinite;
+}
+
+@keyframes hit-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   Table
+   ============================================================================ */
+
+.hit-data-table {
+  width: 100%;
+}
+
+.hit-table-wrapper {
+  overflow-x: auto;
+}
+
+.hit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--hit-font-size-sm);
+}
+
+.hit-table th,
+.hit-table td {
+  padding: var(--hit-space-sm) var(--hit-space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--hit-border);
+}
+
+.hit-table th {
+  font-weight: 600;
+  background: var(--hit-bg-secondary);
+  color: var(--hit-text-secondary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.hit-table-header-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.hit-table-header-sortable:hover {
+  color: var(--hit-text);
+}
+
+.hit-table tbody tr:hover {
+  background: var(--hit-bg-secondary);
+}
+
+.hit-row-selected {
+  background: color-mix(in srgb, var(--hit-primary) 10%, transparent) !important;
+}
+
+.hit-table-empty {
+  text-align: center;
+  color: var(--hit-text-muted);
+  padding: var(--hit-space-xl) !important;
+}
+
+.hit-table-search {
+  margin-bottom: var(--hit-space-md);
+}
+
+.hit-search-input {
+  width: 100%;
+  max-width: 300px;
+  padding: var(--hit-space-sm) var(--hit-space-md);
+  border: 1px solid var(--hit-border);
+  border-radius: var(--hit-radius-md);
+  font-size: var(--hit-font-size-sm);
+}
+
+.hit-search-input:focus {
+  outline: none;
+  border-color: var(--hit-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hit-primary) 20%, transparent);
+}
+
+.hit-table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hit-space-md);
+  margin-top: var(--hit-space-md);
+  padding: var(--hit-space-sm) 0;
+}
+
+.hit-pagination-info {
+  color: var(--hit-text-secondary);
+  font-size: var(--hit-font-size-sm);
+}
+
+.hit-action-buttons {
+  display: flex;
+  gap: var(--hit-space-xs);
+}
+
+/* ============================================================================
+   Stats Grid
+   ============================================================================ */
+
+.hit-stat-card {
+  background: var(--hit-bg);
+  border: 1px solid var(--hit-border);
+  border-radius: var(--hit-radius-lg);
+  padding: var(--hit-space-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hit-space-md);
+}
+
+.hit-stat-card-clickable {
+  cursor: pointer;
+  transition: all var(--hit-transition);
+}
+
+.hit-stat-card-clickable:hover {
+  border-color: var(--hit-primary);
+  box-shadow: var(--hit-shadow-md);
+}
+
+.hit-stat-icon {
+  font-size: 1.5rem;
+}
+
+.hit-stat-value {
+  font-size: var(--hit-font-size-2xl);
+  font-weight: 700;
+}
+
+.hit-stat-label {
+  color: var(--hit-text-secondary);
+  font-size: var(--hit-font-size-sm);
+}
+
+.hit-stat-change {
+  font-size: var(--hit-font-size-sm);
+  font-weight: 500;
+  margin-top: var(--hit-space-xs);
+}
+
+.hit-stat-change-increase {
+  color: var(--hit-success);
+}
+
+.hit-stat-change-decrease {
+  color: var(--hit-error);
+}
+
+.hit-stat-change-neutral {
+  color: var(--hit-text-secondary);
+}
+
+/* ============================================================================
+   Form
+   ============================================================================ */
+
+.hit-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hit-space-md);
+}
+
+.hit-form-horizontal .hit-form-fields {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.hit-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hit-space-xs);
+}
+
+.hit-field-horizontal {
+  flex-direction: row;
+  align-items: center;
+}
+
+.hit-field-label {
+  font-size: var(--hit-font-size-sm);
+  font-weight: 500;
+}
+
+.hit-field-required {
+  color: var(--hit-error);
+  margin-left: 2px;
+}
+
+.hit-field-input {
+  padding: var(--hit-space-sm) var(--hit-space-md);
+  border: 1px solid var(--hit-border);
+  border-radius: var(--hit-radius-md);
+  font-size: var(--hit-font-size-md);
+  font-family: inherit;
+  transition: all var(--hit-transition);
+}
+
+.hit-field-input:focus {
+  outline: none;
+  border-color: var(--hit-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hit-primary) 20%, transparent);
+}
+
+.hit-field-input-error {
+  border-color: var(--hit-error);
+}
+
+.hit-field-input-error:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hit-error) 20%, transparent);
+}
+
+.hit-field-help {
+  font-size: var(--hit-font-size-sm);
+  color: var(--hit-text-muted);
+}
+
+.hit-field-error-text {
+  font-size: var(--hit-font-size-sm);
+  color: var(--hit-error);
+}
+
+.hit-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--hit-space-sm);
+  margin-top: var(--hit-space-lg);
+}
+
+.hit-form-error {
+  background: color-mix(in srgb, var(--hit-error) 10%, transparent);
+  color: var(--hit-error);
+  padding: var(--hit-space-sm) var(--hit-space-md);
+  border-radius: var(--hit-radius-md);
+  margin-bottom: var(--hit-space-md);
+}
+
+.hit-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--hit-space-sm);
+  cursor: pointer;
+}
+
+/* ============================================================================
+   Tabs
+   ============================================================================ */
+
+.hit-tabs-list {
+  display: flex;
+  border-bottom: 1px solid var(--hit-border);
+  gap: var(--hit-space-xs);
+}
+
+.hit-tab {
+  padding: var(--hit-space-sm) var(--hit-space-md);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--hit-font-size-sm);
+  font-weight: 500;
+  color: var(--hit-text-secondary);
+  transition: all var(--hit-transition);
+  margin-bottom: -1px;
+}
+
+.hit-tab:hover {
+  color: var(--hit-text);
+}
+
+.hit-tab-active {
+  color: var(--hit-primary);
+  border-bottom-color: var(--hit-primary);
+}
+
+.hit-tabs-content {
+  padding: var(--hit-space-lg) 0;
+}
+
+/* ============================================================================
+   Modal
+   ============================================================================ */
+
+.hit-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--hit-space-lg);
+}
+
+.hit-modal {
+  background: var(--hit-bg);
+  border-radius: var(--hit-radius-xl);
+  box-shadow: var(--hit-shadow-lg);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hit-modal-sm { width: 24rem; }
+.hit-modal-md { width: 32rem; }
+.hit-modal-lg { width: 48rem; }
+.hit-modal-xl { width: 64rem; }
+.hit-modal-full { width: 100%; height: 100%; max-height: 100%; border-radius: 0; }
+
+.hit-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--hit-space-md) var(--hit-space-lg);
+  border-bottom: 1px solid var(--hit-border);
+}
+
+.hit-modal-title {
+  font-size: var(--hit-font-size-lg);
+  font-weight: 600;
+  margin: 0;
+}
+
+.hit-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--hit-text-secondary);
+  padding: 0;
+  line-height: 1;
+}
+
+.hit-modal-close:hover {
+  color: var(--hit-text);
+}
+
+.hit-modal-body {
+  padding: var(--hit-space-lg);
+  overflow-y: auto;
+}
+
+.hit-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--hit-space-sm);
+  padding: var(--hit-space-md) var(--hit-space-lg);
+  border-top: 1px solid var(--hit-border);
+}
+
+/* ============================================================================
+   Alert
+   ============================================================================ */
+
+.hit-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hit-space-sm);
+  padding: var(--hit-space-md);
+  border-radius: var(--hit-radius-md);
+}
+
+.hit-alert-info {
+  background: color-mix(in srgb, var(--hit-info) 10%, transparent);
+  color: var(--hit-info);
+}
+
+.hit-alert-success {
+  background: color-mix(in srgb, var(--hit-success) 10%, transparent);
+  color: var(--hit-success);
+}
+
+.hit-alert-warning {
+  background: color-mix(in srgb, var(--hit-warning) 10%, transparent);
+  color: var(--hit-warning);
+}
+
+.hit-alert-error {
+  background: color-mix(in srgb, var(--hit-error) 10%, transparent);
+  color: var(--hit-error);
+}
+
+.hit-alert-content {
+  flex: 1;
+}
+
+.hit-alert-title {
+  font-weight: 600;
+  margin-bottom: var(--hit-space-xs);
+}
+
+.hit-alert-dismiss {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.hit-alert-dismiss:hover {
+  opacity: 1;
+}
+
+/* ============================================================================
+   Loading
+   ============================================================================ */
+
+.hit-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hit-space-md);
+  padding: var(--hit-space-xl);
+  color: var(--hit-text-secondary);
+}
+
+.hit-spinner-circle {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--hit-border);
+  border-top-color: var(--hit-primary);
+  border-radius: 50%;
+  animation: hit-spin 0.8s linear infinite;
+}
+
+.hit-skeleton-line {
+  height: 1rem;
+  background: var(--hit-bg-tertiary);
+  border-radius: var(--hit-radius-sm);
+  animation: hit-pulse 1.5s ease-in-out infinite;
+}
+
+.hit-skeleton-line-lg {
+  height: 1.5rem;
+  width: 60%;
+}
+
+.hit-skeleton-line + .hit-skeleton-line {
+  margin-top: var(--hit-space-sm);
+  width: 80%;
+}
+
+@keyframes hit-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.hit-dots {
+  display: flex;
+  gap: var(--hit-space-xs);
+}
+
+.hit-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--hit-primary);
+  border-radius: 50%;
+  animation: hit-bounce 1.4s ease-in-out infinite;
+}
+
+.hit-dot:nth-child(2) { animation-delay: 0.16s; }
+.hit-dot:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes hit-bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* ============================================================================
+   Typography
+   ============================================================================ */
+
+.hit-text-h1 { font-size: var(--hit-font-size-3xl); font-weight: 700; }
+.hit-text-h2 { font-size: var(--hit-font-size-2xl); font-weight: 600; }
+.hit-text-h3 { font-size: var(--hit-font-size-xl); font-weight: 600; }
+.hit-text-h4 { font-size: var(--hit-font-size-lg); font-weight: 600; }
+.hit-text-body { font-size: var(--hit-font-size-md); }
+.hit-text-small { font-size: var(--hit-font-size-sm); }
+.hit-text-muted { font-size: var(--hit-font-size-sm); color: var(--hit-text-muted); }
+
+/* ============================================================================
+   Badge
+   ============================================================================ */
+
+.hit-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+
+.hit-badge-default {
+  background: var(--hit-bg-tertiary);
+  color: var(--hit-text-secondary);
+}
+
+.hit-badge-primary {
+  background: color-mix(in srgb, var(--hit-primary) 15%, transparent);
+  color: var(--hit-primary);
+}
+
+.hit-badge-success {
+  background: color-mix(in srgb, var(--hit-success) 15%, transparent);
+  color: var(--hit-success);
+}
+
+.hit-badge-warning {
+  background: color-mix(in srgb, var(--hit-warning) 15%, transparent);
+  color: var(--hit-warning);
+}
+
+.hit-badge-error {
+  background: color-mix(in srgb, var(--hit-error) 15%, transparent);
+  color: var(--hit-error);
+}
+
+.hit-badge-info {
+  background: color-mix(in srgb, var(--hit-info) 15%, transparent);
+  color: var(--hit-info);
+}
+
+/* ============================================================================
+   Link
+   ============================================================================ */
+
+.hit-link {
+  color: var(--hit-primary);
+  text-decoration: none;
+  transition: color var(--hit-transition);
+}
+
+.hit-link:hover {
+  color: var(--hit-primary-hover);
+  text-decoration: underline;
+}
+
