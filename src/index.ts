@@ -23,6 +23,8 @@ export {
   getCounter,
   increment,
   reset,
+  getConfig,
+  version,
 } from './pingPong.js';
 export type { CounterResponse } from './pingPong.js';
 

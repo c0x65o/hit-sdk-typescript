@@ -84,6 +84,24 @@ export class PingPongClient {
     const response = await this.client.post<CounterResponse>(`/counter/${counterId}/reset`);
     return response.value;
   }
+
+  /**
+   * Get ping-pong service configuration via /hit/config endpoint.
+   *
+   * @returns Configuration object including module settings
+   */
+  async getConfig(): Promise<Record<string, unknown>> {
+    return this.client.get<Record<string, unknown>>('/hit/config');
+  }
+
+  /**
+   * Get ping-pong service version via /hit/version endpoint.
+   *
+   * @returns Version object with module name and version
+   */
+  async version(): Promise<Record<string, unknown>> {
+    return this.client.get<Record<string, unknown>>('/hit/version');
+  }
 }
 
 // Default client instance
@@ -125,6 +143,24 @@ export async function increment(counterId: string): Promise<number> {
  */
 export async function reset(counterId: string): Promise<number> {
   return getDefaultClient().reset(counterId);
+}
+
+/**
+ * Get ping-pong service configuration via /hit/config endpoint.
+ *
+ * @returns Configuration object including module settings
+ */
+export async function getConfig(): Promise<Record<string, unknown>> {
+  return getDefaultClient().getConfig();
+}
+
+/**
+ * Get ping-pong service version via /hit/version endpoint.
+ *
+ * @returns Version object with module name and version
+ */
+export async function version(): Promise<Record<string, unknown>> {
+  return getDefaultClient().version();
 }
 
 // Export singleton instance
