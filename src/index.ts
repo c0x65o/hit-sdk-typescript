@@ -47,6 +47,8 @@ export {
 export type { AuthTokenResponse, FeatureConfig } from './auth.js';
 
 // UI System (Server-Driven UI for components)
+// Note: These exports require React. For server-side code, import from '@hit/sdk/ui' directly
+// or use the separate UI entry point '@hit/sdk/ui' which is designed for client-side use.
 export {
   HitUIRenderer,
   HitUIFromEndpoint,
