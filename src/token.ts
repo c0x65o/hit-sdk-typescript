@@ -3,10 +3,14 @@
  *
  * Handles fetching and caching service/project tokens from CAC for SDK requests.
  *
- * Token Resolution Order:
- * 1. HIT_SERVICE_TOKEN (new per-service tokens with module/database ACL)
- * 2. HIT_PROJECT_TOKEN (legacy project-wide tokens, for backward compatibility)
- * 3. Explicit token passed in constructor
+ * Token Resolution Order (for local development):
+ * 1. HIT_SERVICE_{SERVICE_NAME}_TOKEN (per-service token with method-level ACL)
+ *    Example: HIT_SERVICE_WEB_TOKEN, HIT_SERVICE_API_TOKEN
+ * 2. HIT_SERVICE_TOKEN (generic service token)
+ * 3. HIT_PROJECT_TOKEN (legacy project-wide tokens)
+ * 4. Explicit token passed in constructor
+ *
+ * The HIT_SERVICE_NAME environment variable determines which service token to use.
  */
 
 interface TokenManagerOptions {
@@ -15,12 +19,14 @@ interface TokenManagerOptions {
   namespace?: string;
   projectToken?: string;
   serviceToken?: string;
+  serviceName?: string;
 }
 
 class TokenManager {
   private cacUrl: string;
   private projectSlug: string;
   private namespace: string;
+  private serviceName?: string;
   private serviceToken?: string;
   private projectToken?: string;
   private cachedToken?: string;
@@ -35,8 +41,19 @@ class TokenManager {
     this.projectSlug = options.projectSlug || (isNode ? process.env.HIT_PROJECT_SLUG : '') || '';
     this.namespace = options.namespace || (isNode ? process.env.HIT_NAMESPACE : '') || 'shared';
     
-    // Prefer service token over project token (service token has ACL)
-    this.serviceToken = options.serviceToken || (isNode ? process.env.HIT_SERVICE_TOKEN : undefined);
+    // Get service name to look up service-specific token
+    this.serviceName = options.serviceName || (isNode ? process.env.HIT_SERVICE_NAME : undefined);
+    
+    // Token resolution:
+    // 1. Per-service token (HIT_SERVICE_{NAME}_TOKEN) - contains method-level ACL
+    // 2. Generic service token (HIT_SERVICE_TOKEN)
+    // 3. Legacy project token (HIT_PROJECT_TOKEN)
+    if (isNode && this.serviceName) {
+      const serviceTokenVar = `HIT_SERVICE_${this.serviceName.toUpperCase()}_TOKEN`;
+      this.serviceToken = options.serviceToken || process.env[serviceTokenVar] || process.env.HIT_SERVICE_TOKEN;
+    } else {
+      this.serviceToken = options.serviceToken || (isNode ? process.env.HIT_SERVICE_TOKEN : undefined);
+    }
     this.projectToken = options.projectToken || (isNode ? process.env.HIT_PROJECT_TOKEN : undefined);
   }
 
@@ -44,20 +61,21 @@ class TokenManager {
    * Get a valid service or project token.
    *
    * Token resolution order:
-   * 1. Explicitly provided service token (HIT_SERVICE_TOKEN)
-   * 2. Explicitly provided project token (HIT_PROJECT_TOKEN)
-   * 3. Cached token from previous fetch
-   * 4. Fetch from CAC (if configured)
+   * 1. Per-service token (HIT_SERVICE_{NAME}_TOKEN with ACL)
+   * 2. Generic service token (HIT_SERVICE_TOKEN)
+   * 3. Legacy project token (HIT_PROJECT_TOKEN)
+   * 4. Cached token from previous fetch
+   * 5. Fetch from CAC (if configured)
    *
    * @returns Token string, or undefined if not available
    */
   async getToken(): Promise<string | undefined> {
-    // Prefer service token (new per-service with ACL)
+    // Prefer service token (has per-service ACL)
     if (this.serviceToken) {
       return this.serviceToken;
     }
     
-    // Fall back to project token (legacy)
+    // Fall back to project token (legacy, no method-level ACL)
     if (this.projectToken) {
       return this.projectToken;
     }
