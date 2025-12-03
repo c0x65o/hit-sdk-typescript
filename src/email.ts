@@ -17,6 +17,17 @@ export interface EmailResponse {
   dry_run?: boolean;
 }
 
+/**
+ * Get EMAIL_DEFAULT_FROM from environment if available.
+ * Works in Node.js and Next.js server-side environments.
+ */
+function getDefaultFrom(): string | undefined {
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env.EMAIL_DEFAULT_FROM;
+  }
+  return undefined;
+}
+
 export class EmailClient {
   private client: HitClient;
 
@@ -30,11 +41,26 @@ export class EmailClient {
   }
 
   async send(payload: SendEmailPayload): Promise<EmailResponse> {
-    return this.client.post<EmailResponse>('/send', payload);
+    // Auto-provide from_email from EMAIL_DEFAULT_FROM env if not specified
+    const enrichedPayload = { ...payload };
+    if (!enrichedPayload.from_email) {
+      const defaultFrom = getDefaultFrom();
+      if (defaultFrom) {
+        enrichedPayload.from_email = defaultFrom;
+      }
+    }
+    return this.client.post<EmailResponse>('/send', enrichedPayload);
   }
 
   async config(): Promise<Record<string, unknown>> {
-    return this.client.get<Record<string, unknown>>('/config');
+    const moduleConfig = await this.client.get<Record<string, unknown>>('/config');
+    // Enrich with local environment config if available
+    const localDefaultFrom = getDefaultFrom();
+    if (localDefaultFrom) {
+      // Local env takes precedence (it's already calculated with correct domain)
+      moduleConfig.default_from = localDefaultFrom;
+    }
+    return moduleConfig;
   }
 
   async features(): Promise<Record<string, unknown>> {

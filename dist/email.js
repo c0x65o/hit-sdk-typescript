@@ -1,5 +1,15 @@
 import { HitClient } from './client.js';
 import { getServiceUrl, getNamespace, getApiKey } from './config.js';
+/**
+ * Get EMAIL_DEFAULT_FROM from environment if available.
+ * Works in Node.js and Next.js server-side environments.
+ */
+function getDefaultFrom() {
+    if (typeof process !== 'undefined' && process.env) {
+        return process.env.EMAIL_DEFAULT_FROM;
+    }
+    return undefined;
+}
 export class EmailClient {
     constructor(options = {}) {
         this.client = new HitClient({
@@ -10,10 +20,25 @@ export class EmailClient {
         });
     }
     async send(payload) {
-        return this.client.post('/send', payload);
+        // Auto-provide from_email from EMAIL_DEFAULT_FROM env if not specified
+        const enrichedPayload = { ...payload };
+        if (!enrichedPayload.from_email) {
+            const defaultFrom = getDefaultFrom();
+            if (defaultFrom) {
+                enrichedPayload.from_email = defaultFrom;
+            }
+        }
+        return this.client.post('/send', enrichedPayload);
     }
     async config() {
-        return this.client.get('/config');
+        const moduleConfig = await this.client.get('/config');
+        // Enrich with local environment config if available
+        const localDefaultFrom = getDefaultFrom();
+        if (localDefaultFrom) {
+            // Local env takes precedence (it's already calculated with correct domain)
+            moduleConfig.default_from = localDefaultFrom;
+        }
+        return moduleConfig;
     }
     async features() {
         return this.client.get('/features');
