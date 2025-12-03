@@ -1,7 +1,12 @@
 /**
  * Token management for Hit SDK authentication.
  *
- * Handles fetching and caching project tokens from CAC for SDK requests.
+ * Handles fetching and caching service/project tokens from CAC for SDK requests.
+ *
+ * Token Resolution Order:
+ * 1. HIT_SERVICE_TOKEN (new per-service tokens with module/database ACL)
+ * 2. HIT_PROJECT_TOKEN (legacy project-wide tokens, for backward compatibility)
+ * 3. Explicit token passed in constructor
  */
 
 interface TokenManagerOptions {
@@ -9,12 +14,14 @@ interface TokenManagerOptions {
   projectSlug?: string;
   namespace?: string;
   projectToken?: string;
+  serviceToken?: string;
 }
 
 class TokenManager {
   private cacUrl: string;
   private projectSlug: string;
   private namespace: string;
+  private serviceToken?: string;
   private projectToken?: string;
   private cachedToken?: string;
   private tokenExpiresAt?: number;
@@ -27,16 +34,30 @@ class TokenManager {
     this.cacUrl = (options.cacUrl || (isNode ? process.env.HIT_CAC_URL : '') || '').replace(/\/$/, '');
     this.projectSlug = options.projectSlug || (isNode ? process.env.HIT_PROJECT_SLUG : '') || '';
     this.namespace = options.namespace || (isNode ? process.env.HIT_NAMESPACE : '') || 'shared';
+    
+    // Prefer service token over project token (service token has ACL)
+    this.serviceToken = options.serviceToken || (isNode ? process.env.HIT_SERVICE_TOKEN : undefined);
     this.projectToken = options.projectToken || (isNode ? process.env.HIT_PROJECT_TOKEN : undefined);
   }
 
   /**
-   * Get a valid project token.
+   * Get a valid service or project token.
    *
-   * @returns Project token string, or undefined if not available
+   * Token resolution order:
+   * 1. Explicitly provided service token (HIT_SERVICE_TOKEN)
+   * 2. Explicitly provided project token (HIT_PROJECT_TOKEN)
+   * 3. Cached token from previous fetch
+   * 4. Fetch from CAC (if configured)
+   *
+   * @returns Token string, or undefined if not available
    */
   async getToken(): Promise<string | undefined> {
-    // If explicitly provided, use it
+    // Prefer service token (new per-service with ACL)
+    if (this.serviceToken) {
+      return this.serviceToken;
+    }
+    
+    // Fall back to project token (legacy)
     if (this.projectToken) {
       return this.projectToken;
     }
