@@ -91,6 +91,10 @@ export class HitClient {
         }
         catch (error) {
             clearTimeout(timeoutId);
+            // Re-throw HitAPIError as-is to preserve status code and response data
+            if (error instanceof HitAPIError) {
+                throw error;
+            }
             if (error instanceof Error && error.name === 'AbortError') {
                 throw new HitAPIError(`Request timeout after ${this.timeout}ms`, 0);
             }
@@ -141,6 +145,10 @@ export class HitClient {
         }
         catch (error) {
             clearTimeout(timeoutId);
+            // Re-throw HitAPIError as-is to preserve status code and response data
+            if (error instanceof HitAPIError) {
+                throw error;
+            }
             if (error instanceof Error && error.name === 'AbortError') {
                 throw new HitAPIError(`Request timeout after ${this.timeout}ms`, 0);
             }
@@ -154,19 +162,40 @@ export class HitClient {
         }
     }
     async handleError(response) {
-        let message;
+        let detail;
         let responseData;
         try {
             responseData = await response.json();
             if (typeof responseData === 'object' && responseData !== null && 'detail' in responseData) {
-                message = String(responseData.detail);
-            }
-            else {
-                message = response.statusText;
+                detail = String(responseData.detail);
             }
         }
         catch {
-            message = response.statusText;
+            // Response wasn't JSON, that's fine
+        }
+        // Provide helpful error messages based on status code category
+        let message;
+        if (response.status >= 500) {
+            // Server errors - indicate the service had an issue
+            message = detail
+                ? `Server error (${response.status}): ${detail}`
+                : `Server error (${response.status}): ${response.statusText}. The service encountered an internal error.`;
+        }
+        else if (response.status === 401) {
+            message = detail || 'Authentication required. Check your API key or token.';
+        }
+        else if (response.status === 403) {
+            message = detail || 'Access denied. You do not have permission to access this resource.';
+        }
+        else if (response.status === 404) {
+            message = detail || 'Resource not found.';
+        }
+        else if (response.status === 422) {
+            message = detail || 'Invalid request data.';
+        }
+        else {
+            // Other client errors
+            message = detail || response.statusText;
         }
         throw new HitAPIError(message, response.status, responseData);
     }
