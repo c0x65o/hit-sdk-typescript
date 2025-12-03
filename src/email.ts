@@ -55,5 +55,14 @@ export async function sendEmail(payload: SendEmailPayload): Promise<EmailRespons
   return getDefaultClient().send(payload);
 }
 
-export const email = getDefaultClient();
+// Lazy proxy that creates the client on first property access
+// This ensures env vars are available when the client is actually used
+const lazyEmail = {
+  send: (payload: SendEmailPayload) => getDefaultClient().send(payload),
+  config: () => getDefaultClient().config(),
+  features: () => getDefaultClient().features(),
+};
+
+// Export lazy singleton - client is created on first method call, not at import time
+export const email = lazyEmail;
 

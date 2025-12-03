@@ -21,5 +21,9 @@ export declare class EmailClient {
     features(): Promise<Record<string, unknown>>;
 }
 export declare function sendEmail(payload: SendEmailPayload): Promise<EmailResponse>;
-export declare const email: EmailClient;
+export declare const email: {
+    send: (payload: SendEmailPayload) => Promise<EmailResponse>;
+    config: () => Promise<Record<string, unknown>>;
+    features: () => Promise<Record<string, unknown>>;
+};
 //# sourceMappingURL=email.d.ts.map

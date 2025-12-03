@@ -87,7 +87,7 @@ export class PingPongClient {
         return this.client.get('/hit/version');
     }
 }
-// Default client instance
+// Default client instance - created lazily on first use to ensure env vars are available
 let defaultClient = null;
 function getDefaultClient() {
     if (!defaultClient) {
@@ -139,5 +139,14 @@ export async function getConfig() {
 export async function version() {
     return getDefaultClient().version();
 }
-// Export singleton instance
-export const pingPong = getDefaultClient();
+// Lazy proxy that creates the client on first property access
+// This ensures env vars are available when the client is actually used
+const lazyPingPong = {
+    getCounter: (counterId) => getDefaultClient().getCounter(counterId),
+    increment: (counterId) => getDefaultClient().increment(counterId),
+    reset: (counterId) => getDefaultClient().reset(counterId),
+    getConfig: () => getDefaultClient().getConfig(),
+    version: () => getDefaultClient().version(),
+};
+// Export lazy singleton - client is created on first method call, not at import time
+export const pingPong = lazyPingPong;

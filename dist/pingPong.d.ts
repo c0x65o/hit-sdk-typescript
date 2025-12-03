@@ -93,5 +93,11 @@ export declare function getConfig(): Promise<Record<string, unknown>>;
  * @returns Version object with module name and version
  */
 export declare function version(): Promise<Record<string, unknown>>;
-export declare const pingPong: PingPongClient;
+export declare const pingPong: {
+    getCounter: (counterId: string) => Promise<number>;
+    increment: (counterId: string) => Promise<number>;
+    reset: (counterId: string) => Promise<number>;
+    getConfig: () => Promise<Record<string, unknown>>;
+    version: () => Promise<Record<string, unknown>>;
+};
 //# sourceMappingURL=pingPong.d.ts.map

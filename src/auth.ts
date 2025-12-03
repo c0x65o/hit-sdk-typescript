@@ -125,5 +125,22 @@ export async function features(): Promise<FeatureConfig> {
   return getDefaultClient().features();
 }
 
-export const auth = getDefaultClient();
+// Lazy proxy that creates the client on first property access
+// This ensures env vars are available when the client is actually used
+const lazyAuth = {
+  register: (email: string, password: string) => getDefaultClient().register(email, password),
+  login: (email: string, password?: string, twoFactorCode?: string) => 
+    getDefaultClient().login(email, password, twoFactorCode),
+  verifyEmail: (email: string, code: string) => getDefaultClient().verifyEmail(email, code),
+  enableTwoFactor: (email: string) => getDefaultClient().enableTwoFactor(email),
+  verifyTwoFactor: (email: string, code: string) => getDefaultClient().verifyTwoFactor(email, code),
+  oauthUrl: (provider: string) => getDefaultClient().oauthUrl(provider),
+  oauthCallback: (provider: string, oauthCode: string) => 
+    getDefaultClient().oauthCallback(provider, oauthCode),
+  config: () => getDefaultClient().config(),
+  features: () => getDefaultClient().features(),
+};
+
+// Export lazy singleton - client is created on first method call, not at import time
+export const auth = lazyAuth;
 
