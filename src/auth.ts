@@ -76,17 +76,13 @@ export class AuthClient {
   }
 }
 
-let defaultClient: AuthClient | null = null;
-
-function getDefaultClient(): AuthClient {
-  if (!defaultClient) {
-    defaultClient = new AuthClient();
-  }
-  return defaultClient;
+// Create a fresh client for each call to ensure env vars are always current
+function getClient(): AuthClient {
+  return new AuthClient();
 }
 
 export async function register(email: string, password: string): Promise<AuthTokenResponse> {
-  return getDefaultClient().register(email, password);
+  return getClient().register(email, password);
 }
 
 export async function login(
@@ -94,53 +90,52 @@ export async function login(
   password?: string,
   twoFactorCode?: string,
 ): Promise<AuthTokenResponse> {
-  return getDefaultClient().login(email, password, twoFactorCode);
+  return getClient().login(email, password, twoFactorCode);
 }
 
 export async function verifyEmail(email: string, code: string): Promise<Record<string, unknown>> {
-  return getDefaultClient().verifyEmail(email, code);
+  return getClient().verifyEmail(email, code);
 }
 
 export async function enableTwoFactor(email: string): Promise<Record<string, unknown>> {
-  return getDefaultClient().enableTwoFactor(email);
+  return getClient().enableTwoFactor(email);
 }
 
 export async function verifyTwoFactor(email: string, code: string): Promise<Record<string, unknown>> {
-  return getDefaultClient().verifyTwoFactor(email, code);
+  return getClient().verifyTwoFactor(email, code);
 }
 
 export async function oauthUrl(provider: string): Promise<Record<string, unknown>> {
-  return getDefaultClient().oauthUrl(provider);
+  return getClient().oauthUrl(provider);
 }
 
 export async function oauthCallback(provider: string, oauthCode: string): Promise<AuthTokenResponse> {
-  return getDefaultClient().oauthCallback(provider, oauthCode);
+  return getClient().oauthCallback(provider, oauthCode);
 }
 
 export async function config(): Promise<FeatureConfig> {
-  return getDefaultClient().config();
+  return getClient().config();
 }
 
 export async function features(): Promise<FeatureConfig> {
-  return getDefaultClient().features();
+  return getClient().features();
 }
 
-// Lazy proxy that creates the client on first property access
-// This ensures env vars are available when the client is actually used
-const lazyAuth = {
-  register: (email: string, password: string) => getDefaultClient().register(email, password),
+// Fresh client proxy - creates a new client for each call
+const authProxy = {
+  register: (email: string, password: string) => getClient().register(email, password),
   login: (email: string, password?: string, twoFactorCode?: string) => 
-    getDefaultClient().login(email, password, twoFactorCode),
-  verifyEmail: (email: string, code: string) => getDefaultClient().verifyEmail(email, code),
-  enableTwoFactor: (email: string) => getDefaultClient().enableTwoFactor(email),
-  verifyTwoFactor: (email: string, code: string) => getDefaultClient().verifyTwoFactor(email, code),
-  oauthUrl: (provider: string) => getDefaultClient().oauthUrl(provider),
+    getClient().login(email, password, twoFactorCode),
+  verifyEmail: (email: string, code: string) => getClient().verifyEmail(email, code),
+  enableTwoFactor: (email: string) => getClient().enableTwoFactor(email),
+  verifyTwoFactor: (email: string, code: string) => getClient().verifyTwoFactor(email, code),
+  oauthUrl: (provider: string) => getClient().oauthUrl(provider),
   oauthCallback: (provider: string, oauthCode: string) => 
-    getDefaultClient().oauthCallback(provider, oauthCode),
-  config: () => getDefaultClient().config(),
-  features: () => getDefaultClient().features(),
+    getClient().oauthCallback(provider, oauthCode),
+  config: () => getClient().config(),
+  features: () => getClient().features(),
 };
 
-// Export lazy singleton - client is created on first method call, not at import time
-export const auth = lazyAuth;
+// Export proxy - fresh client created for each method call
+export const auth = authProxy;
 

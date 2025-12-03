@@ -42,27 +42,22 @@ export class EmailClient {
   }
 }
 
-let defaultClient: EmailClient | null = null;
-
-function getDefaultClient(): EmailClient {
-  if (!defaultClient) {
-    defaultClient = new EmailClient();
-  }
-  return defaultClient;
+// Create a fresh client for each call to ensure env vars are always current
+function getClient(): EmailClient {
+  return new EmailClient();
 }
 
 export async function sendEmail(payload: SendEmailPayload): Promise<EmailResponse> {
-  return getDefaultClient().send(payload);
+  return getClient().send(payload);
 }
 
-// Lazy proxy that creates the client on first property access
-// This ensures env vars are available when the client is actually used
-const lazyEmail = {
-  send: (payload: SendEmailPayload) => getDefaultClient().send(payload),
-  config: () => getDefaultClient().config(),
-  features: () => getDefaultClient().features(),
+// Fresh client proxy - creates a new client for each call
+const emailProxy = {
+  send: (payload: SendEmailPayload) => getClient().send(payload),
+  config: () => getClient().config(),
+  features: () => getClient().features(),
 };
 
-// Export lazy singleton - client is created on first method call, not at import time
-export const email = lazyEmail;
+// Export proxy - fresh client created for each method call
+export const email = emailProxy;
 

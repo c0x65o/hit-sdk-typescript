@@ -44,52 +44,48 @@ export class AuthClient {
         return this.client.get('/features');
     }
 }
-let defaultClient = null;
-function getDefaultClient() {
-    if (!defaultClient) {
-        defaultClient = new AuthClient();
-    }
-    return defaultClient;
+// Create a fresh client for each call to ensure env vars are always current
+function getClient() {
+    return new AuthClient();
 }
 export async function register(email, password) {
-    return getDefaultClient().register(email, password);
+    return getClient().register(email, password);
 }
 export async function login(email, password, twoFactorCode) {
-    return getDefaultClient().login(email, password, twoFactorCode);
+    return getClient().login(email, password, twoFactorCode);
 }
 export async function verifyEmail(email, code) {
-    return getDefaultClient().verifyEmail(email, code);
+    return getClient().verifyEmail(email, code);
 }
 export async function enableTwoFactor(email) {
-    return getDefaultClient().enableTwoFactor(email);
+    return getClient().enableTwoFactor(email);
 }
 export async function verifyTwoFactor(email, code) {
-    return getDefaultClient().verifyTwoFactor(email, code);
+    return getClient().verifyTwoFactor(email, code);
 }
 export async function oauthUrl(provider) {
-    return getDefaultClient().oauthUrl(provider);
+    return getClient().oauthUrl(provider);
 }
 export async function oauthCallback(provider, oauthCode) {
-    return getDefaultClient().oauthCallback(provider, oauthCode);
+    return getClient().oauthCallback(provider, oauthCode);
 }
 export async function config() {
-    return getDefaultClient().config();
+    return getClient().config();
 }
 export async function features() {
-    return getDefaultClient().features();
+    return getClient().features();
 }
-// Lazy proxy that creates the client on first property access
-// This ensures env vars are available when the client is actually used
-const lazyAuth = {
-    register: (email, password) => getDefaultClient().register(email, password),
-    login: (email, password, twoFactorCode) => getDefaultClient().login(email, password, twoFactorCode),
-    verifyEmail: (email, code) => getDefaultClient().verifyEmail(email, code),
-    enableTwoFactor: (email) => getDefaultClient().enableTwoFactor(email),
-    verifyTwoFactor: (email, code) => getDefaultClient().verifyTwoFactor(email, code),
-    oauthUrl: (provider) => getDefaultClient().oauthUrl(provider),
-    oauthCallback: (provider, oauthCode) => getDefaultClient().oauthCallback(provider, oauthCode),
-    config: () => getDefaultClient().config(),
-    features: () => getDefaultClient().features(),
+// Fresh client proxy - creates a new client for each call
+const authProxy = {
+    register: (email, password) => getClient().register(email, password),
+    login: (email, password, twoFactorCode) => getClient().login(email, password, twoFactorCode),
+    verifyEmail: (email, code) => getClient().verifyEmail(email, code),
+    enableTwoFactor: (email) => getClient().enableTwoFactor(email),
+    verifyTwoFactor: (email, code) => getClient().verifyTwoFactor(email, code),
+    oauthUrl: (provider) => getClient().oauthUrl(provider),
+    oauthCallback: (provider, oauthCode) => getClient().oauthCallback(provider, oauthCode),
+    config: () => getClient().config(),
+    features: () => getClient().features(),
 };
-// Export lazy singleton - client is created on first method call, not at import time
-export const auth = lazyAuth;
+// Export proxy - fresh client created for each method call
+export const auth = authProxy;

@@ -87,13 +87,11 @@ export class PingPongClient {
         return this.client.get('/hit/version');
     }
 }
-// Default client instance - created lazily on first use to ensure env vars are available
-let defaultClient = null;
-function getDefaultClient() {
-    if (!defaultClient) {
-        defaultClient = new PingPongClient();
-    }
-    return defaultClient;
+// Create a fresh client for each call to ensure env vars are always current
+// This avoids issues with Next.js bundling where different routes may have
+// different module instances that were initialized at different times
+function getClient() {
+    return new PingPongClient();
 }
 // Module-level convenience functions
 /**
@@ -103,7 +101,7 @@ function getDefaultClient() {
  * @returns Current counter value
  */
 export async function getCounter(counterId) {
-    return getDefaultClient().getCounter(counterId);
+    return getClient().getCounter(counterId);
 }
 /**
  * Increment counter and return new value.
@@ -112,7 +110,7 @@ export async function getCounter(counterId) {
  * @returns New counter value
  */
 export async function increment(counterId) {
-    return getDefaultClient().increment(counterId);
+    return getClient().increment(counterId);
 }
 /**
  * Reset counter to 0.
@@ -121,7 +119,7 @@ export async function increment(counterId) {
  * @returns Reset counter value (always 0)
  */
 export async function reset(counterId) {
-    return getDefaultClient().reset(counterId);
+    return getClient().reset(counterId);
 }
 /**
  * Get ping-pong service configuration via /hit/config endpoint.
@@ -129,7 +127,7 @@ export async function reset(counterId) {
  * @returns Configuration object including module settings
  */
 export async function getConfig() {
-    return getDefaultClient().getConfig();
+    return getClient().getConfig();
 }
 /**
  * Get ping-pong service version via /hit/version endpoint.
@@ -137,16 +135,16 @@ export async function getConfig() {
  * @returns Version object with module name and version
  */
 export async function version() {
-    return getDefaultClient().version();
+    return getClient().version();
 }
-// Lazy proxy that creates the client on first property access
-// This ensures env vars are available when the client is actually used
-const lazyPingPong = {
-    getCounter: (counterId) => getDefaultClient().getCounter(counterId),
-    increment: (counterId) => getDefaultClient().increment(counterId),
-    reset: (counterId) => getDefaultClient().reset(counterId),
-    getConfig: () => getDefaultClient().getConfig(),
-    version: () => getDefaultClient().version(),
+// Fresh client proxy - creates a new client for each call
+// This ensures env vars are always current and avoids Next.js bundling issues
+const pingPongProxy = {
+    getCounter: (counterId) => getClient().getCounter(counterId),
+    increment: (counterId) => getClient().increment(counterId),
+    reset: (counterId) => getClient().reset(counterId),
+    getConfig: () => getClient().getConfig(),
+    version: () => getClient().version(),
 };
-// Export lazy singleton - client is created on first method call, not at import time
-export const pingPong = lazyPingPong;
+// Export proxy - fresh client created for each method call
+export const pingPong = pingPongProxy;
