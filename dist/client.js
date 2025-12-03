@@ -15,6 +15,31 @@ export class HitAPIError extends Error {
         this.statusCode = statusCode;
         this.response = response;
     }
+    /** Returns true if this is a server error (5xx status code) */
+    isServerError() {
+        return this.statusCode >= 500 && this.statusCode < 600;
+    }
+    /** Returns true if this is a client error (4xx status code) */
+    isClientError() {
+        return this.statusCode >= 400 && this.statusCode < 500;
+    }
+    /** Returns true if this error might be resolved by retrying (5xx, timeout, network) */
+    isRetryable() {
+        return this.statusCode === 0 || this.isServerError();
+    }
+    /** Clean string representation without stack trace, suitable for logging */
+    toLogString() {
+        return `HitAPIError [${this.statusCode}]: ${this.message}`;
+    }
+    /** Structured representation for JSON logging */
+    toJSON() {
+        return {
+            name: this.name,
+            message: this.message,
+            statusCode: this.statusCode,
+            response: this.response,
+        };
+    }
 }
 /**
  * Base HTTP client for Hit services.

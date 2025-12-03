@@ -11,6 +11,21 @@ export declare class HitAPIError extends Error {
     statusCode: number;
     response?: unknown;
     constructor(message: string, statusCode: number, response?: unknown);
+    /** Returns true if this is a server error (5xx status code) */
+    isServerError(): boolean;
+    /** Returns true if this is a client error (4xx status code) */
+    isClientError(): boolean;
+    /** Returns true if this error might be resolved by retrying (5xx, timeout, network) */
+    isRetryable(): boolean;
+    /** Clean string representation without stack trace, suitable for logging */
+    toLogString(): string;
+    /** Structured representation for JSON logging */
+    toJSON(): {
+        name: string;
+        message: string;
+        statusCode: number;
+        response?: unknown;
+    };
 }
 export interface HitClientOptions {
     baseUrl?: string;
