@@ -46,6 +46,19 @@ export {
 } from './auth.js';
 export type { AuthTokenResponse, FeatureConfig } from './auth.js';
 
+// Events - Real-time subscriptions via WebSocket/SSE
+export {
+  HitEvents,
+  events,
+  getEventsClient,
+} from './events.js';
+export type {
+  EventMessage,
+  EventSubscription,
+  EventHandler,
+  HitEventsOptions,
+} from './events.js';
+
 // UI System (Server-Driven UI for components)
 // Note: These exports require React. For server-side code, import from '@hit/sdk/ui' directly
 // or use the separate UI entry point '@hit/sdk/ui' which is designed for client-side use.
