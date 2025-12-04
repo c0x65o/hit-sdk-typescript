@@ -93,7 +93,8 @@ export class HitEvents {
     this.maxReconnectAttempts = options.maxReconnectAttempts || Infinity;
     this.onError = options.onError;
     this.onStatusChange = options.onStatusChange;
-    this.useSSE = options.useSSE || false;
+    // Default to SSE for better compatibility (works through proxies, load balancers)
+    this.useSSE = options.useSSE ?? true;
   }
 
   private getBaseUrl(): string {
@@ -101,7 +102,11 @@ export class HitEvents {
       return this.baseUrl;
     }
     // Auto-discover from environment
-    return getServiceUrl('events');
+    const url = getServiceUrl('events');
+    
+    // If URL is relative (e.g., /api/events), it's going through a proxy
+    // Keep it as-is for the frontend to resolve
+    return url;
   }
 
   private setStatus(status: ConnectionStatus): void {
@@ -198,7 +203,18 @@ export class HitEvents {
     const baseUrl = this.getBaseUrl();
     const patterns = this.getAllPatterns();
     const channelsParam = patterns.length > 0 ? patterns.join(',') : '*';
-    const sseUrl = `${baseUrl}/sse/subscribe?channels=${encodeURIComponent(channelsParam)}`;
+    
+    // Handle both direct events service URL and proxy URL patterns
+    // Direct: http://events:8098/sse/subscribe
+    // Proxy: /api/events/stream (Next.js route handler)
+    let sseUrl: string;
+    if (baseUrl.includes('/api/events')) {
+      // Using proxy route - use /stream endpoint
+      sseUrl = `${baseUrl}/stream?channels=${encodeURIComponent(channelsParam)}`;
+    } else {
+      // Direct connection to events service
+      sseUrl = `${baseUrl}/sse/subscribe?channels=${encodeURIComponent(channelsParam)}`;
+    }
 
     try {
       this.eventSource = new EventSource(sseUrl);
