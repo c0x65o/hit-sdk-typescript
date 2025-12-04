@@ -16,6 +16,8 @@ export { getServiceUrl, getNamespace, getApiKey } from './config.js';
 export { PingPongClient, pingPong, getCounter, increment, reset, getConfig, version, } from './pingPong.js';
 export { EmailClient, email, sendEmail } from './email.js';
 export { AuthClient, auth, register, login, verifyEmail, enableTwoFactor, verifyTwoFactor, oauthUrl, oauthCallback, config as authConfig, features as authFeatures, } from './auth.js';
+// Events - Real-time subscriptions via WebSocket/SSE
+export { HitEvents, events, getEventsClient, } from './events.js';
 // UI System (Server-Driven UI for components)
 // Note: These exports require React. For server-side code, import from '@hit/sdk/ui' directly
 // or use the separate UI entry point '@hit/sdk/ui' which is designed for client-side use.

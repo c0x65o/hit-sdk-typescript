@@ -10,6 +10,7 @@ const DEFAULT_PORTS = {
     'ping-pong': 8099,
     'auth': 8001,
     'email': 8002,
+    'events': 8098,
 };
 // Detect if we're running in Node.js or browser
 const isNode = typeof process !== 'undefined' &&
