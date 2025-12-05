@@ -13,10 +13,16 @@
  *
  * // Reset
  * await pingPong.reset('test');
+ *
+ * // Subscribe to real-time counter updates (Easy Button!)
+ * const unsubscribe = await pingPong.subscribeCounter('test', (value) => {
+ *   console.log('Counter updated:', value);
+ * });
  * ```
  */
 import { HitClient } from './client.js';
-import { getApiKey, getNamespace, getServiceUrl } from './config.js';
+import { getApiKey, getNamespace, getServiceUrl, getWebSocketUrl } from './config.js';
+import { HitEvents } from './events.js';
 /**
  * Client for ping-pong counter service.
  */
@@ -86,6 +92,103 @@ export class PingPongClient {
     async version() {
         return this.client.get('/hit/version');
     }
+    /**
+     * Subscribe to real-time counter updates (Easy Button!).
+     *
+     * This method:
+     * 1. Gets the current counter value
+     * 2. Sets up a WebSocket subscription for counter.* events
+     * 3. Calls your callback whenever the counter changes
+     *
+     * The event channel is automatically discovered from the ping-pong module's
+     * /hit/config endpoint (settings.events.channel or database.namespace).
+     *
+     * In deployed environments, uses HIT_EVENTS_WEBSOCKET_URL which should be
+     * the project-specific WSS endpoint (e.g., wss://events.hit-hello-world-ts.dev.domain.com)
+     *
+     * @param counterId - Counter identifier
+     * @param onUpdate - Callback called with new value whenever counter changes
+     * @param options - Optional configuration overrides
+     * @returns Promise resolving to unsubscribe function
+     *
+     * @example
+     * ```typescript
+     * const unsubscribe = await pingPong.subscribeCounter('my-counter', (value) => {
+     *   setCount(value);
+     * });
+     *
+     * // Later: stop listening
+     * unsubscribe();
+     * ```
+     */
+    async subscribeCounter(counterId, onUpdate, options) {
+        // 1. Get current value first
+        const initialValue = await this.getCounter(counterId);
+        onUpdate(initialValue);
+        // 2. Get event channel from module config (hit.yaml settings)
+        // Priority: options.projectSlug > config.settings.events.channel > config.settings.database.namespace
+        let eventChannel;
+        if (options?.projectSlug) {
+            eventChannel = options.projectSlug;
+        }
+        else {
+            try {
+                const config = await this.getConfig();
+                // Use settings.events.channel, fallback to database.namespace
+                eventChannel = config.settings?.events?.channel
+                    || config.settings?.database?.namespace
+                    || getProjectSlug();
+            }
+            catch {
+                // If config fails, use project slug from environment
+                eventChannel = getProjectSlug();
+            }
+        }
+        // 3. Get WebSocket URL
+        // Priority: options.wsUrl > HIT_EVENTS_WEBSOCKET_URL > HIT_EVENTS_URL (transformed to ws)
+        // For deployed environments, HIT_EVENTS_WEBSOCKET_URL should be the project-specific
+        // WSS endpoint like: wss://events.hit-hello-world-ts.dev.hit-cac.hcents.com
+        const wsUrl = options?.wsUrl || getWebSocketUrl('events');
+        const httpUrl = getServiceUrl('events');
+        console.log('[PingPong] Setting up counter subscription:', {
+            counterId,
+            eventChannel,
+            wsUrl,
+            initialValue,
+        });
+        const eventsClient = new HitEvents({
+            baseUrl: httpUrl,
+            projectSlug: eventChannel,
+            // HitEvents will use wsUrl internally when connecting
+        });
+        const subscription = eventsClient.subscribe('counter.*', (event) => {
+            if (event.payload.counter_id === counterId && event.payload.value !== undefined) {
+                console.log('[PingPong] Counter event received:', event.payload);
+                onUpdate(event.payload.value);
+            }
+        });
+        // Return unsubscribe function
+        return () => {
+            console.log('[PingPong] Unsubscribing from counter:', counterId);
+            subscription.unsubscribe();
+            eventsClient.close();
+        };
+    }
+}
+/**
+ * Get project slug from environment.
+ * This is the project identifier used for event channel isolation.
+ */
+function getProjectSlug() {
+    // Check various env var patterns
+    if (typeof process !== 'undefined' && process.env) {
+        return (process.env.NEXT_PUBLIC_HIT_PROJECT_SLUG ||
+            process.env.HIT_PROJECT_SLUG ||
+            process.env.NEXT_PUBLIC_HIT_EVENTS_PROJECT ||
+            process.env.HIT_EVENTS_PROJECT ||
+            'default');
+    }
+    return 'default';
 }
 // Create a fresh client for each call to ensure env vars are always current
 // This avoids issues with Next.js bundling where different routes may have
@@ -137,6 +240,17 @@ export async function getConfig() {
 export async function version() {
     return getClient().version();
 }
+/**
+ * Subscribe to real-time counter updates (Easy Button!).
+ *
+ * @param counterId - Counter identifier
+ * @param onUpdate - Callback called with new value whenever counter changes
+ * @param options - Optional configuration overrides
+ * @returns Promise resolving to unsubscribe function
+ */
+export async function subscribeCounter(counterId, onUpdate, options) {
+    return getClient().subscribeCounter(counterId, onUpdate, options);
+}
 // Fresh client proxy - creates a new client for each call
 // This ensures env vars are always current and avoids Next.js bundling issues
 const pingPongProxy = {
@@ -145,6 +259,7 @@ const pingPongProxy = {
     reset: (counterId) => getClient().reset(counterId),
     getConfig: () => getClient().getConfig(),
     version: () => getClient().version(),
+    subscribeCounter: (counterId, onUpdate, options) => getClient().subscribeCounter(counterId, onUpdate, options),
 };
 // Export proxy - fresh client created for each method call
 export const pingPong = pingPongProxy;

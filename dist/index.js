@@ -13,7 +13,7 @@
  */
 export { HitClient, HitAPIError } from './client.js';
 export { getServiceUrl, getNamespace, getApiKey, getWebSocketUrl } from './config.js';
-export { PingPongClient, pingPong, getCounter, increment, reset, getConfig, version, } from './pingPong.js';
+export { PingPongClient, pingPong, getCounter, increment, reset, getConfig, version, subscribeCounter, } from './pingPong.js';
 export { EmailClient, email, sendEmail } from './email.js';
 export { AuthClient, auth, register, login, verifyEmail, enableTwoFactor, verifyTwoFactor, oauthUrl, oauthCallback, config as authConfig, features as authFeatures, } from './auth.js';
 // Events - Real-time subscriptions via WebSocket/SSE

@@ -284,8 +284,22 @@ export function getWebSocketUrl(serviceName: string): string {
     }
   }
 
-  // In browser, check if env var was injected by bundler (Next.js)
+  // In browser, use STATIC env var access for known services
+  // (Next.js only replaces static process.env.KEY references at build time,
+  // dynamic access like process.env[variable] does NOT work)
   if (typeof window !== 'undefined') {
+    // Events module - most common WebSocket use case
+    if (serviceName === 'events') {
+      // Static access - Next.js replaces these at build time
+      if (process.env.NEXT_PUBLIC_HIT_EVENTS_WEBSOCKET_URL) {
+        return process.env.NEXT_PUBLIC_HIT_EVENTS_WEBSOCKET_URL;
+      }
+      if (process.env.NEXT_PUBLIC_HIT_EVENTS_WS_URL) {
+        return process.env.NEXT_PUBLIC_HIT_EVENTS_WS_URL;
+      }
+    }
+    
+    // Fallback: try dynamic access (works if next.config.js env section is configured)
     for (const envKey of envKeys) {
       const publicEnvKey = `NEXT_PUBLIC_${envKey}`;
       // @ts-ignore - dynamic env access
