@@ -16,7 +16,7 @@
  * subscription.unsubscribe();
  * ```
  */
-import { getServiceUrl } from './config.js';
+import { getServiceUrl, getWebSocketUrl } from './config.js';
 /**
  * HIT Events client for real-time event subscriptions.
  *
@@ -94,17 +94,16 @@ export class HitEvents {
         }
     }
     connectWebSocket() {
-        const baseUrl = this.getBaseUrl();
         const patterns = this.getAllPatterns();
         const channelsParam = patterns.length > 0 ? patterns.join(',') : '*';
-        // Build WebSocket URL
-        // Local: ws://localhost:8098/ws?project=demo-shared&channels=chat.*
-        // Deployed: wss://events.hello-world.domain.com/ws?channels=chat.*
-        const wsBase = baseUrl.replace(/^http/, 'ws');
+        // Get WebSocket URL from environment (HIT_EVENTS_WEBSOCKET_URL)
+        // Local: ws://localhost:8098
+        // Deployed: wss://events.shared-modules.domain.com
+        const wsBase = this.baseUrl ? this.baseUrl.replace(/^http/, 'ws') : getWebSocketUrl('events');
         const params = new URLSearchParams();
         params.set('channels', channelsParam);
         // Add project slug for local development (in prod, it's extracted from subdomain)
-        if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+        if (wsBase.includes('localhost') || wsBase.includes('127.0.0.1')) {
             params.set('project', this.projectSlug);
         }
         const wsUrl = `${wsBase}/ws?${params.toString()}`;

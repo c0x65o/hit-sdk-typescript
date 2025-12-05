@@ -31,4 +31,15 @@ export declare function getNamespace(): string;
  * @returns API key or null if not set
  */
 export declare function getApiKey(serviceName: string): string | null;
+/**
+ * Get WebSocket URL for a service.
+ *
+ * Priority:
+ * 1. Environment variable: HIT_<SERVICE>_WEBSOCKET_URL
+ * 2. Transform HTTP URL to WS (local development fallback)
+ *
+ * @param serviceName - Service name (e.g., "events")
+ * @returns WebSocket URL (e.g., "ws://localhost:8098" or "wss://events.shared-modules.domain.com")
+ */
+export declare function getWebSocketUrl(serviceName: string): string;
 //# sourceMappingURL=config.d.ts.map

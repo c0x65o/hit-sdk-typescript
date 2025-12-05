@@ -15,7 +15,7 @@
 export { HitClient, HitAPIError } from './client.js';
 export type { HitClientOptions } from './client.js';
 
-export { getServiceUrl, getNamespace, getApiKey } from './config.js';
+export { getServiceUrl, getNamespace, getApiKey, getWebSocketUrl } from './config.js';
 
 export {
   PingPongClient,
