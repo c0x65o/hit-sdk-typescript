@@ -115,17 +115,18 @@ export class HitEvents {
                 console.log('[HIT Events] WebSocket connected');
                 this.setStatus('connected');
                 this.reconnectAttempts = 0;
-                // Send any patterns that were added while connecting
-                // The URL only had patterns known at connect() time, but more may have been added
-                if (this.pendingPatterns.size > 0) {
-                    const allPatterns = this.getAllPatterns();
-                    console.log('[HIT Events] Sending pending patterns:', allPatterns);
+                // Send any pending patterns that were added after connect() was called
+                // but before the WebSocket actually opened
+                const allPatterns = this.getAllPatterns();
+                if (allPatterns.length > 0) {
+                    console.log('[HIT Events] Sending patterns to server:', allPatterns);
                     this.ws?.send(JSON.stringify({
                         type: 'subscribe',
                         patterns: allPatterns,
                     }));
-                    this.pendingPatterns.clear();
                 }
+                // Clear pending patterns - they're now sent
+                this.pendingPatterns.clear();
                 // Start ping interval to keep connection alive
                 this.pingInterval = setInterval(() => {
                     if (this.ws?.readyState === WebSocket.OPEN) {
