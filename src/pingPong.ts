@@ -13,11 +13,17 @@
  *
  * // Reset
  * await pingPong.reset('test');
+ *
+ * // Subscribe to real-time counter updates (Easy Button!)
+ * const unsubscribe = await pingPong.subscribeCounter('test', (value) => {
+ *   console.log('Counter updated:', value);
+ * });
  * ```
  */
 
 import { HitClient, HitClientOptions } from './client.js';
-import { getApiKey, getNamespace, getServiceUrl } from './config.js';
+import { getApiKey, getNamespace, getServiceUrl, getWebSocketUrl } from './config.js';
+import { HitEvents, EventMessage, EventSubscription } from './events.js';
 
 export interface CounterResponse {
   id: string;
@@ -102,6 +108,82 @@ export class PingPongClient {
   async version(): Promise<Record<string, unknown>> {
     return this.client.get<Record<string, unknown>>('/hit/version');
   }
+
+  /**
+   * Subscribe to real-time counter updates (Easy Button!).
+   * 
+   * This method:
+   * 1. Gets the current counter value
+   * 2. Sets up a WebSocket subscription for counter.* events
+   * 3. Calls your callback whenever the counter changes
+   * 
+   * The event channel is automatically discovered from the ping-pong module's
+   * /hit/config endpoint (settings.events.channel or database.namespace).
+   *
+   * @param counterId - Counter identifier
+   * @param onUpdate - Callback called with new value whenever counter changes
+   * @returns Promise resolving to unsubscribe function
+   *
+   * @example
+   * ```typescript
+   * const unsubscribe = await pingPong.subscribeCounter('my-counter', (value) => {
+   *   setCount(value);
+   * });
+   * 
+   * // Later: stop listening
+   * unsubscribe();
+   * ```
+   */
+  async subscribeCounter(
+    counterId: string,
+    onUpdate: (value: number) => void
+  ): Promise<() => void> {
+    // 1. Get current value first
+    const initialValue = await this.getCounter(counterId);
+    onUpdate(initialValue);
+
+    // 2. Get event channel from module config (hit.yaml settings)
+    let eventChannel: string;
+    try {
+      const config = await this.getConfig() as { 
+        settings?: { 
+          events?: { channel?: string };
+          database?: { namespace?: string };
+        };
+      };
+      // Use settings.events.channel, fallback to database.namespace
+      eventChannel = config.settings?.events?.channel 
+        || config.settings?.database?.namespace 
+        || 'shared-db';
+    } catch {
+      // If config fails, use default
+      eventChannel = 'shared-db';
+    }
+
+    // 3. Set up WebSocket subscription for counter events
+    const eventsUrl = getServiceUrl('events') || 'http://localhost:8098';
+    const wsUrl = getWebSocketUrl('events') || eventsUrl.replace(/^http/, 'ws');
+    
+    const eventsClient = new HitEvents({
+      baseUrl: eventsUrl,
+      projectSlug: eventChannel,
+    });
+
+    const subscription = eventsClient.subscribe<{ counter_id?: string; value?: number }>(
+      'counter.*',
+      (event: EventMessage & { payload: { counter_id?: string; value?: number } }) => {
+        if (event.payload.counter_id === counterId && event.payload.value !== undefined) {
+          onUpdate(event.payload.value);
+        }
+      }
+    );
+
+    // Return unsubscribe function
+    return () => {
+      subscription.unsubscribe();
+      eventsClient.close();
+    };
+  }
 }
 
 // Create a fresh client for each call to ensure env vars are always current
@@ -160,6 +242,20 @@ export async function version(): Promise<Record<string, unknown>> {
   return getClient().version();
 }
 
+/**
+ * Subscribe to real-time counter updates (Easy Button!).
+ * 
+ * @param counterId - Counter identifier
+ * @param onUpdate - Callback called with new value whenever counter changes
+ * @returns Promise resolving to unsubscribe function
+ */
+export async function subscribeCounter(
+  counterId: string,
+  onUpdate: (value: number) => void
+): Promise<() => void> {
+  return getClient().subscribeCounter(counterId, onUpdate);
+}
+
 // Fresh client proxy - creates a new client for each call
 // This ensures env vars are always current and avoids Next.js bundling issues
 const pingPongProxy = {
@@ -168,6 +264,8 @@ const pingPongProxy = {
   reset: (counterId: string) => getClient().reset(counterId),
   getConfig: () => getClient().getConfig(),
   version: () => getClient().version(),
+  subscribeCounter: (counterId: string, onUpdate: (value: number) => void) =>
+    getClient().subscribeCounter(counterId, onUpdate),
 };
 
 // Export proxy - fresh client created for each method call

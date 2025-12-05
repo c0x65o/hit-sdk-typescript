@@ -25,6 +25,7 @@ export {
   reset,
   getConfig,
   version,
+  subscribeCounter,
 } from './pingPong.js';
 export type { CounterResponse } from './pingPong.js';
 
