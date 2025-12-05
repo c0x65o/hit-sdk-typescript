@@ -33,18 +33,37 @@ export class HitEvents {
         this.reconnectTimeout = null;
         this.pingInterval = null;
         this.baseUrl = options.baseUrl || '';
+        this.projectSlug = options.projectSlug || this.getProjectSlug();
         this.reconnectDelay = options.reconnectDelayMs || 3000;
         this.maxReconnectAttempts = options.maxReconnectAttempts || Infinity;
         this.onError = options.onError;
         this.onStatusChange = options.onStatusChange;
-        this.useSSE = options.useSSE || false;
+        // Default to WebSocket for real-time, fall back to SSE if explicitly requested
+        this.useSSE = options.useSSE ?? false;
+    }
+    /**
+     * Get project slug from environment or use default.
+     */
+    getProjectSlug() {
+        // Check environment variables (browser-safe)
+        if (typeof process !== 'undefined' && process.env) {
+            return (process.env.NEXT_PUBLIC_HIT_EVENTS_PROJECT ||
+                process.env.HIT_EVENTS_PROJECT ||
+                process.env.NEXT_PUBLIC_HIT_PROJECT_SLUG ||
+                process.env.HIT_PROJECT_SLUG ||
+                'demo-shared');
+        }
+        return 'demo-shared';
     }
     getBaseUrl() {
         if (this.baseUrl) {
             return this.baseUrl;
         }
         // Auto-discover from environment
-        return getServiceUrl('events');
+        const url = getServiceUrl('events');
+        // If URL is relative (e.g., /api/events), it's going through a proxy
+        // Keep it as-is for the frontend to resolve
+        return url;
     }
     setStatus(status) {
         if (this.status !== status) {
@@ -78,47 +97,69 @@ export class HitEvents {
         const baseUrl = this.getBaseUrl();
         const patterns = this.getAllPatterns();
         const channelsParam = patterns.length > 0 ? patterns.join(',') : '*';
-        const wsUrl = baseUrl.replace(/^http/, 'ws') + `/ws/subscribe?channels=${encodeURIComponent(channelsParam)}`;
+        // Build WebSocket URL
+        // Local: ws://localhost:8098/ws?project=demo-shared&channels=chat.*
+        // Deployed: wss://events.hello-world.domain.com/ws?channels=chat.*
+        const wsBase = baseUrl.replace(/^http/, 'ws');
+        const params = new URLSearchParams();
+        params.set('channels', channelsParam);
+        // Add project slug for local development (in prod, it's extracted from subdomain)
+        if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+            params.set('project', this.projectSlug);
+        }
+        const wsUrl = `${wsBase}/ws?${params.toString()}`;
+        console.log('[HIT Events] Connecting to WebSocket:', wsUrl);
         try {
             this.ws = new WebSocket(wsUrl);
             this.ws.onopen = () => {
+                console.log('[HIT Events] WebSocket connected');
                 this.setStatus('connected');
                 this.reconnectAttempts = 0;
-                // Start ping interval
+                // Start ping interval to keep connection alive
                 this.pingInterval = setInterval(() => {
                     if (this.ws?.readyState === WebSocket.OPEN) {
-                        this.ws.send('ping');
+                        this.ws.send(JSON.stringify({ type: 'ping' }));
                     }
                 }, 25000);
             };
             this.ws.onmessage = (event) => {
-                if (event.data === 'pong' || event.data === 'ping') {
-                    return;
-                }
                 try {
                     const data = JSON.parse(event.data);
-                    // Handle subscription confirmations
-                    if ('type' in data && (data.type === 'subscribed' || data.type === 'unsubscribed')) {
-                        return;
+                    // Handle connection and subscription confirmations
+                    if ('type' in data) {
+                        if (data.type === 'connected') {
+                            console.log('[HIT Events] Connection confirmed:', data);
+                            return;
+                        }
+                        if (data.type === 'subscribed' || data.type === 'unsubscribed') {
+                            console.log('[HIT Events] Subscription updated:', data);
+                            return;
+                        }
+                        if (data.type === 'pong') {
+                            return;
+                        }
                     }
-                    // Dispatch to handlers
+                    // Dispatch event to handlers
                     this.dispatchEvent(data);
                 }
                 catch (e) {
                     // Ignore parse errors for non-JSON messages
                 }
             };
-            this.ws.onclose = () => {
+            this.ws.onclose = (event) => {
+                console.log('[HIT Events] WebSocket closed:', event.code, event.reason);
                 this.setStatus('disconnected');
                 this.cleanup();
                 this.scheduleReconnect();
             };
-            this.ws.onerror = () => {
+            this.ws.onerror = (error) => {
+                console.error('[HIT Events] WebSocket error:', error);
                 this.setStatus('error');
                 this.onError?.(new Error('WebSocket connection error'));
             };
         }
         catch (error) {
+            console.error('[HIT Events] Failed to create WebSocket:', error);
             this.setStatus('error');
             this.onError?.(error instanceof Error ? error : new Error(String(error)));
             this.scheduleReconnect();
@@ -128,7 +169,18 @@ export class HitEvents {
         const baseUrl = this.getBaseUrl();
         const patterns = this.getAllPatterns();
         const channelsParam = patterns.length > 0 ? patterns.join(',') : '*';
-        const sseUrl = `${baseUrl}/sse/subscribe?channels=${encodeURIComponent(channelsParam)}`;
+        // Handle both direct events service URL and proxy URL patterns
+        // Direct: http://events:8098/sse/subscribe
+        // Proxy: /api/events/stream (Next.js route handler)
+        let sseUrl;
+        if (baseUrl.includes('/api/events')) {
+            // Using proxy route - use /stream endpoint
+            sseUrl = `${baseUrl}/stream?channels=${encodeURIComponent(channelsParam)}`;
+        }
+        else {
+            // Direct connection to events service
+            sseUrl = `${baseUrl}/sse/subscribe?channels=${encodeURIComponent(channelsParam)}`;
+        }
         try {
             this.eventSource = new EventSource(sseUrl);
             this.eventSource.onopen = () => {
@@ -239,7 +291,10 @@ export class HitEvents {
             this.subscriptions.set(pattern, new Set());
             // If already connected, dynamically subscribe
             if (this.ws?.readyState === WebSocket.OPEN) {
-                this.ws.send(`subscribe:${pattern}`);
+                this.ws.send(JSON.stringify({
+                    type: 'subscribe',
+                    patterns: this.getAllPatterns(),
+                }));
             }
             else {
                 this.pendingPatterns.add(pattern);
@@ -266,7 +321,10 @@ export class HitEvents {
                 this.subscriptions.delete(pattern);
                 this.pendingPatterns.delete(pattern);
                 if (this.ws?.readyState === WebSocket.OPEN) {
-                    this.ws.send(`unsubscribe:${pattern}`);
+                    this.ws.send(JSON.stringify({
+                        type: 'unsubscribe',
+                        patterns: [pattern],
+                    }));
                 }
             }
         }

@@ -48,6 +48,8 @@ export type EventHandler<T = Record<string, unknown>> = (event: EventMessage & {
 export interface HitEventsOptions {
     /** Base URL for events gateway (default: auto-discovered) */
     baseUrl?: string;
+    /** Project slug for event channel isolation */
+    projectSlug?: string;
     /** Reconnection delay in ms (default: 3000) */
     reconnectDelayMs?: number;
     /** Maximum reconnection attempts (default: Infinity) */
@@ -56,7 +58,7 @@ export interface HitEventsOptions {
     onError?: (error: Error) => void;
     /** Connection status handler */
     onStatusChange?: (status: 'connecting' | 'connected' | 'disconnected' | 'error') => void;
-    /** Use SSE instead of WebSocket (default: false) */
+    /** Use SSE instead of WebSocket (default: false - use WebSocket) */
     useSSE?: boolean;
 }
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -71,6 +73,7 @@ export declare class HitEvents {
     private subscriptions;
     private pendingPatterns;
     private baseUrl;
+    private projectSlug;
     private reconnectDelay;
     private maxReconnectAttempts;
     private reconnectAttempts;
@@ -81,6 +84,10 @@ export declare class HitEvents {
     private reconnectTimeout;
     private pingInterval;
     constructor(options?: HitEventsOptions);
+    /**
+     * Get project slug from environment or use default.
+     */
+    private getProjectSlug;
     private getBaseUrl;
     private setStatus;
     private getAllPatterns;
