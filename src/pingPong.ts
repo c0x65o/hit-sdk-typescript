@@ -119,9 +119,13 @@ export class PingPongClient {
    * 
    * The event channel is automatically discovered from the ping-pong module's
    * /hit/config endpoint (settings.events.channel or database.namespace).
+   * 
+   * In deployed environments, uses HIT_EVENTS_WEBSOCKET_URL which should be
+   * the project-specific WSS endpoint (e.g., wss://events.hit-hello-world-ts.dev.domain.com)
    *
    * @param counterId - Counter identifier
    * @param onUpdate - Callback called with new value whenever counter changes
+   * @param options - Optional configuration overrides
    * @returns Promise resolving to unsubscribe function
    *
    * @example
@@ -136,43 +140,66 @@ export class PingPongClient {
    */
   async subscribeCounter(
     counterId: string,
-    onUpdate: (value: number) => void
+    onUpdate: (value: number) => void,
+    options?: {
+      /** Override the WebSocket URL (defaults to HIT_EVENTS_WEBSOCKET_URL) */
+      wsUrl?: string;
+      /** Override the project slug (defaults to config discovery) */
+      projectSlug?: string;
+    }
   ): Promise<() => void> {
     // 1. Get current value first
     const initialValue = await this.getCounter(counterId);
     onUpdate(initialValue);
 
     // 2. Get event channel from module config (hit.yaml settings)
+    // Priority: options.projectSlug > config.settings.events.channel > config.settings.database.namespace
     let eventChannel: string;
-    try {
-      const config = await this.getConfig() as { 
-        settings?: { 
-          events?: { channel?: string };
-          database?: { namespace?: string };
+    if (options?.projectSlug) {
+      eventChannel = options.projectSlug;
+    } else {
+      try {
+        const config = await this.getConfig() as { 
+          settings?: { 
+            events?: { channel?: string };
+            database?: { namespace?: string };
+          };
         };
-      };
-      // Use settings.events.channel, fallback to database.namespace
-      eventChannel = config.settings?.events?.channel 
-        || config.settings?.database?.namespace 
-        || 'shared-db';
-    } catch {
-      // If config fails, use default
-      eventChannel = 'shared-db';
+        // Use settings.events.channel, fallback to database.namespace
+        eventChannel = config.settings?.events?.channel 
+          || config.settings?.database?.namespace 
+          || getProjectSlug();
+      } catch {
+        // If config fails, use project slug from environment
+        eventChannel = getProjectSlug();
+      }
     }
 
-    // 3. Set up WebSocket subscription for counter events
-    const eventsUrl = getServiceUrl('events') || 'http://localhost:8098';
-    const wsUrl = getWebSocketUrl('events') || eventsUrl.replace(/^http/, 'ws');
+    // 3. Get WebSocket URL
+    // Priority: options.wsUrl > HIT_EVENTS_WEBSOCKET_URL > HIT_EVENTS_URL (transformed to ws)
+    // For deployed environments, HIT_EVENTS_WEBSOCKET_URL should be the project-specific
+    // WSS endpoint like: wss://events.hit-hello-world-ts.dev.hit-cac.hcents.com
+    const wsUrl = options?.wsUrl || getWebSocketUrl('events');
+    const httpUrl = getServiceUrl('events');
     
+    console.log('[PingPong] Setting up counter subscription:', {
+      counterId,
+      eventChannel,
+      wsUrl,
+      initialValue,
+    });
+
     const eventsClient = new HitEvents({
-      baseUrl: eventsUrl,
+      baseUrl: httpUrl,
       projectSlug: eventChannel,
+      // HitEvents will use wsUrl internally when connecting
     });
 
     const subscription = eventsClient.subscribe<{ counter_id?: string; value?: number }>(
       'counter.*',
       (event: EventMessage & { payload: { counter_id?: string; value?: number } }) => {
         if (event.payload.counter_id === counterId && event.payload.value !== undefined) {
+          console.log('[PingPong] Counter event received:', event.payload);
           onUpdate(event.payload.value);
         }
       }
@@ -180,10 +207,29 @@ export class PingPongClient {
 
     // Return unsubscribe function
     return () => {
+      console.log('[PingPong] Unsubscribing from counter:', counterId);
       subscription.unsubscribe();
       eventsClient.close();
     };
   }
+}
+
+/**
+ * Get project slug from environment.
+ * This is the project identifier used for event channel isolation.
+ */
+function getProjectSlug(): string {
+  // Check various env var patterns
+  if (typeof process !== 'undefined' && process.env) {
+    return (
+      process.env.NEXT_PUBLIC_HIT_PROJECT_SLUG ||
+      process.env.HIT_PROJECT_SLUG ||
+      process.env.NEXT_PUBLIC_HIT_EVENTS_PROJECT ||
+      process.env.HIT_EVENTS_PROJECT ||
+      'default'
+    );
+  }
+  return 'default';
 }
 
 // Create a fresh client for each call to ensure env vars are always current
@@ -247,13 +293,18 @@ export async function version(): Promise<Record<string, unknown>> {
  * 
  * @param counterId - Counter identifier
  * @param onUpdate - Callback called with new value whenever counter changes
+ * @param options - Optional configuration overrides
  * @returns Promise resolving to unsubscribe function
  */
 export async function subscribeCounter(
   counterId: string,
-  onUpdate: (value: number) => void
+  onUpdate: (value: number) => void,
+  options?: {
+    wsUrl?: string;
+    projectSlug?: string;
+  }
 ): Promise<() => void> {
-  return getClient().subscribeCounter(counterId, onUpdate);
+  return getClient().subscribeCounter(counterId, onUpdate, options);
 }
 
 // Fresh client proxy - creates a new client for each call
@@ -264,8 +315,11 @@ const pingPongProxy = {
   reset: (counterId: string) => getClient().reset(counterId),
   getConfig: () => getClient().getConfig(),
   version: () => getClient().version(),
-  subscribeCounter: (counterId: string, onUpdate: (value: number) => void) =>
-    getClient().subscribeCounter(counterId, onUpdate),
+  subscribeCounter: (
+    counterId: string,
+    onUpdate: (value: number) => void,
+    options?: { wsUrl?: string; projectSlug?: string }
+  ) => getClient().subscribeCounter(counterId, onUpdate, options),
 };
 
 // Export proxy - fresh client created for each method call
