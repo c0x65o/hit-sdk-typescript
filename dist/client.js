@@ -78,11 +78,22 @@ export class HitClient {
      * Make GET request.
      *
      * @param path - API path (e.g., "/counter/test")
-     * @param params - Query parameters
+     * @param options - Query parameters or options with headers
      * @returns Response JSON
      * @throws HitAPIError on API error
      */
-    async get(path, params) {
+    async get(path, options) {
+        // Support both simple params and options object
+        let params;
+        let customHeaders;
+        if (options && typeof options === 'object' && 'headers' in options && typeof options.headers === 'object') {
+            const opts = options;
+            params = opts.params;
+            customHeaders = opts.headers;
+        }
+        else {
+            params = options;
+        }
         if (!this.baseUrl) {
             throw new HitAPIError('Base URL is not set. Configure service URL via HIT_<SERVICE>_URL environment variable or hit.yaml', 0);
         }
@@ -103,6 +114,10 @@ export class HitClient {
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
         try {
             const headers = await this.getHeaders();
+            // Merge custom headers
+            if (customHeaders) {
+                Object.assign(headers, customHeaders);
+            }
             const response = await fetch(url.toString(), {
                 method: 'GET',
                 headers,
@@ -137,10 +152,12 @@ export class HitClient {
      *
      * @param path - API path
      * @param body - JSON body
+     * @param options - Optional headers
      * @returns Response JSON
      * @throws HitAPIError on API error
      */
-    async post(path, body) {
+    async post(path, body, options) {
+        const customHeaders = options?.headers;
         if (!this.baseUrl) {
             throw new HitAPIError('Base URL is not set. Configure service URL via HIT_<SERVICE>_URL environment variable or hit.yaml', 0);
         }
@@ -156,6 +173,10 @@ export class HitClient {
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
         try {
             const headers = await this.getHeaders();
+            // Merge custom headers
+            if (customHeaders) {
+                Object.assign(headers, customHeaders);
+            }
             const response = await fetch(url.toString(), {
                 method: 'POST',
                 headers,

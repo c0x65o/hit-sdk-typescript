@@ -217,7 +217,7 @@ export class AuthClient {
    */
   async logout(): Promise<Record<string, unknown>> {
     const refreshToken = this.getRefreshToken();
-    const response = await this.client.post('/logout', {
+    const response = await this.client.post<Record<string, unknown>>('/logout', {
       refresh_token: refreshToken,
     });
     this.clearTokens();
@@ -233,7 +233,7 @@ export class AuthClient {
       throw new Error('No access token available');
     }
     
-    const response = await this.client.post('/logout-all', {}, {
+    const response = await this.client.post<Record<string, unknown>>('/logout-all', {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     this.clearTokens();
@@ -261,7 +261,7 @@ export class AuthClient {
     }
     return this.client.get<UserProfile>('/me', {
       headers: { Authorization: `Bearer ${token}` },
-    });
+    } as { headers: Record<string, string> });
   }
 
   async verifyEmail(email: string, code: string): Promise<Record<string, unknown>> {

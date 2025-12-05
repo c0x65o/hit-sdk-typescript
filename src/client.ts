@@ -105,11 +105,22 @@ export class HitClient {
    * Make GET request.
    *
    * @param path - API path (e.g., "/counter/test")
-   * @param params - Query parameters
+   * @param options - Query parameters or options with headers
    * @returns Response JSON
    * @throws HitAPIError on API error
    */
-  async get<T = unknown>(path: string, params?: Record<string, string>): Promise<T> {
+  async get<T = unknown>(path: string, options?: Record<string, string> | { params?: Record<string, string>; headers?: Record<string, string> }): Promise<T> {
+    // Support both simple params and options object
+    let params: Record<string, string> | undefined;
+    let customHeaders: Record<string, string> | undefined;
+    
+    if (options && typeof options === 'object' && 'headers' in options && typeof options.headers === 'object') {
+      const opts = options as { params?: Record<string, string>; headers?: Record<string, string> };
+      params = opts.params;
+      customHeaders = opts.headers;
+    } else {
+      params = options as Record<string, string> | undefined;
+    }
     if (!this.baseUrl) {
       throw new HitAPIError(
         'Base URL is not set. Configure service URL via HIT_<SERVICE>_URL environment variable or hit.yaml',
@@ -139,6 +150,10 @@ export class HitClient {
 
     try {
       const headers = await this.getHeaders();
+      // Merge custom headers
+      if (customHeaders) {
+        Object.assign(headers, customHeaders);
+      }
       const response = await fetch(url.toString(), {
         method: 'GET',
         headers,
@@ -179,10 +194,12 @@ export class HitClient {
    *
    * @param path - API path
    * @param body - JSON body
+   * @param options - Optional headers
    * @returns Response JSON
    * @throws HitAPIError on API error
    */
-  async post<T = unknown>(path: string, body?: unknown): Promise<T> {
+  async post<T = unknown>(path: string, body?: unknown, options?: { headers?: Record<string, string> }): Promise<T> {
+    const customHeaders = options?.headers;
     if (!this.baseUrl) {
       throw new HitAPIError(
         'Base URL is not set. Configure service URL via HIT_<SERVICE>_URL environment variable or hit.yaml',
@@ -206,6 +223,10 @@ export class HitClient {
 
     try {
       const headers = await this.getHeaders();
+      // Merge custom headers
+      if (customHeaders) {
+        Object.assign(headers, customHeaders);
+      }
       const response = await fetch(url.toString(), {
         method: 'POST',
         headers,

@@ -49,20 +49,26 @@ export declare class HitClient {
      * Make GET request.
      *
      * @param path - API path (e.g., "/counter/test")
-     * @param params - Query parameters
+     * @param options - Query parameters or options with headers
      * @returns Response JSON
      * @throws HitAPIError on API error
      */
-    get<T = unknown>(path: string, params?: Record<string, string>): Promise<T>;
+    get<T = unknown>(path: string, options?: Record<string, string> | {
+        params?: Record<string, string>;
+        headers?: Record<string, string>;
+    }): Promise<T>;
     /**
      * Make POST request.
      *
      * @param path - API path
      * @param body - JSON body
+     * @param options - Optional headers
      * @returns Response JSON
      * @throws HitAPIError on API error
      */
-    post<T = unknown>(path: string, body?: unknown): Promise<T>;
+    post<T = unknown>(path: string, body?: unknown, options?: {
+        headers?: Record<string, string>;
+    }): Promise<T>;
     private handleError;
 }
 //# sourceMappingURL=client.d.ts.map
