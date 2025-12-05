@@ -235,29 +235,37 @@ export function getApiKey(serviceName) {
  * Get WebSocket URL for a service.
  *
  * Priority:
- * 1. Environment variable: HIT_<SERVICE>_WEBSOCKET_URL
+ * 1. Environment variable: HIT_<SERVICE>_WEBSOCKET_URL or HIT_<SERVICE>_WS_URL
  * 2. Transform HTTP URL to WS (local development fallback)
  *
  * @param serviceName - Service name (e.g., "events")
- * @returns WebSocket URL (e.g., "ws://localhost:8098" or "wss://events.shared-modules.domain.com")
+ * @returns WebSocket URL (e.g., "ws://localhost:8098" or "wss://events.project.domain.com")
  */
 export function getWebSocketUrl(serviceName) {
     // Normalize service name for env var (ping-pong -> PING_PONG)
     const normalizedName = serviceName.toUpperCase().replace(/-/g, '_');
-    const envKey = `HIT_${normalizedName}_WEBSOCKET_URL`;
-    // 1. Check environment variable
+    // Try multiple env var patterns (WEBSOCKET_URL is preferred, WS_URL for backwards compat)
+    const envKeys = [
+        `HIT_${normalizedName}_WEBSOCKET_URL`,
+        `HIT_${normalizedName}_WS_URL`,
+    ];
+    // 1. Check environment variables (Node.js)
     if (isNode) {
-        if (process.env[envKey]) {
-            return process.env[envKey];
+        for (const envKey of envKeys) {
+            if (process.env[envKey]) {
+                return process.env[envKey];
+            }
         }
     }
     // In browser, check if env var was injected by bundler (Next.js)
     if (typeof window !== 'undefined') {
-        const publicEnvKey = `NEXT_PUBLIC_${envKey}`;
-        // @ts-ignore - dynamic env access
-        if (typeof process !== 'undefined' && process.env && process.env[publicEnvKey]) {
-            // @ts-ignore
-            return process.env[publicEnvKey];
+        for (const envKey of envKeys) {
+            const publicEnvKey = `NEXT_PUBLIC_${envKey}`;
+            // @ts-ignore - dynamic env access
+            if (typeof process !== 'undefined' && process.env && process.env[publicEnvKey]) {
+                // @ts-ignore
+                return process.env[publicEnvKey];
+            }
         }
     }
     // 2. Fallback: transform HTTP URL to WS (for local development)
