@@ -96,7 +96,7 @@ export class HitEvents {
     connectWebSocket() {
         const patterns = this.getAllPatterns();
         const channelsParam = patterns.length > 0 ? patterns.join(',') : '*';
-        // Get WebSocket URL from environment (HIT_EVENTS_WEBSOCKET_URL)
+        // Get WebSocket URL from environment (HIT_EVENTS_WS_URL)
         // Local: ws://localhost:8098
         // Deployed: wss://events.shared-modules.domain.com
         const wsBase = this.baseUrl ? this.baseUrl.replace(/^http/, 'ws') : getWebSocketUrl('events');

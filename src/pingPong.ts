@@ -120,7 +120,7 @@ export class PingPongClient {
    * The event channel is automatically discovered from the ping-pong module's
    * /hit/config endpoint (settings.events.channel or database.namespace).
    * 
-   * In deployed environments, uses HIT_EVENTS_WEBSOCKET_URL which should be
+   * In deployed environments, uses HIT_EVENTS_WS_URL which should be
    * the project-specific WSS endpoint (e.g., wss://events.hit-hello-world-ts.dev.domain.com)
    *
    * @param counterId - Counter identifier
@@ -142,7 +142,7 @@ export class PingPongClient {
     counterId: string,
     onUpdate: (value: number) => void,
     options?: {
-      /** Override the WebSocket URL (defaults to HIT_EVENTS_WEBSOCKET_URL) */
+      /** Override the WebSocket URL (defaults to HIT_EVENTS_WS_URL) */
       wsUrl?: string;
       /** Override the project slug (defaults to config discovery) */
       projectSlug?: string;
@@ -176,8 +176,8 @@ export class PingPongClient {
     }
 
     // 3. Get WebSocket URL
-    // Priority: options.wsUrl > HIT_EVENTS_WEBSOCKET_URL > HIT_EVENTS_URL (transformed to ws)
-    // For deployed environments, HIT_EVENTS_WEBSOCKET_URL should be the project-specific
+    // Priority: options.wsUrl > HIT_EVENTS_WS_URL > HIT_EVENTS_URL (transformed to ws)
+    // For deployed environments, HIT_EVENTS_WS_URL should be the project-specific
     // WSS endpoint like: wss://events.hit-hello-world-ts.dev.hit-cac.hcents.com
     const wsUrl = options?.wsUrl || getWebSocketUrl('events');
     const httpUrl = getServiceUrl('events');

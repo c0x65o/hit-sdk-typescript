@@ -259,7 +259,7 @@ export function getApiKey(serviceName: string): string | null {
  * Get WebSocket URL for a service.
  *
  * Priority:
- * 1. Environment variable: HIT_<SERVICE>_WEBSOCKET_URL or HIT_<SERVICE>_WS_URL
+ * 1. Environment variable: HIT_<SERVICE>_WS_URL
  * 2. Transform HTTP URL to WS (local development fallback)
  *
  * @param serviceName - Service name (e.g., "events")
@@ -268,20 +268,11 @@ export function getApiKey(serviceName: string): string | null {
 export function getWebSocketUrl(serviceName: string): string {
   // Normalize service name for env var (ping-pong -> PING_PONG)
   const normalizedName = serviceName.toUpperCase().replace(/-/g, '_');
-  
-  // Try multiple env var patterns (WEBSOCKET_URL is preferred, WS_URL for backwards compat)
-  const envKeys = [
-    `HIT_${normalizedName}_WEBSOCKET_URL`,
-    `HIT_${normalizedName}_WS_URL`,
-  ];
+  const envKey = `HIT_${normalizedName}_WS_URL`;
 
-  // 1. Check environment variables (Node.js)
-  if (isNode) {
-    for (const envKey of envKeys) {
-      if (process.env[envKey]) {
-        return process.env[envKey];
-      }
-    }
+  // 1. Check environment variable (Node.js)
+  if (isNode && process.env[envKey]) {
+    return process.env[envKey];
   }
 
   // In browser, use STATIC env var access for known services
@@ -291,22 +282,17 @@ export function getWebSocketUrl(serviceName: string): string {
     // Events module - most common WebSocket use case
     if (serviceName === 'events') {
       // Static access - Next.js replaces these at build time
-      if (process.env.NEXT_PUBLIC_HIT_EVENTS_WEBSOCKET_URL) {
-        return process.env.NEXT_PUBLIC_HIT_EVENTS_WEBSOCKET_URL;
-      }
       if (process.env.NEXT_PUBLIC_HIT_EVENTS_WS_URL) {
         return process.env.NEXT_PUBLIC_HIT_EVENTS_WS_URL;
       }
     }
     
     // Fallback: try dynamic access (works if next.config.js env section is configured)
-    for (const envKey of envKeys) {
-      const publicEnvKey = `NEXT_PUBLIC_${envKey}`;
-      // @ts-ignore - dynamic env access
-      if (typeof process !== 'undefined' && process.env && process.env[publicEnvKey]) {
-        // @ts-ignore
-        return process.env[publicEnvKey];
-      }
+    const publicEnvKey = `NEXT_PUBLIC_${envKey}`;
+    // @ts-ignore - dynamic env access
+    if (typeof process !== 'undefined' && process.env && process.env[publicEnvKey]) {
+      // @ts-ignore
+      return process.env[publicEnvKey];
     }
   }
 

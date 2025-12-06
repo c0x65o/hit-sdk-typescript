@@ -35,7 +35,7 @@ export declare function getApiKey(serviceName: string): string | null;
  * Get WebSocket URL for a service.
  *
  * Priority:
- * 1. Environment variable: HIT_<SERVICE>_WEBSOCKET_URL or HIT_<SERVICE>_WS_URL
+ * 1. Environment variable: HIT_<SERVICE>_WS_URL
  * 2. Transform HTTP URL to WS (local development fallback)
  *
  * @param serviceName - Service name (e.g., "events")
