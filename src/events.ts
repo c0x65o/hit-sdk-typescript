@@ -173,10 +173,9 @@ export class HitEvents {
     const params = new URLSearchParams();
     params.set('channels', channelsParam);
     
-    // Add project slug for local development (in prod, it's extracted from subdomain)
-    if (wsBase.includes('localhost') || wsBase.includes('127.0.0.1')) {
-      params.set('project', this.projectSlug);
-    }
+    // Always send project slug - the server needs it for channel isolation
+    // Previously only sent for localhost, but nginx may not set X-HIT-Project-Slug header for WebSocket upgrades
+    params.set('project', this.projectSlug);
     
     const wsUrl = `${wsBase}/ws?${params.toString()}`;
     console.log('[HIT Events] Connecting to WebSocket:', wsUrl);
