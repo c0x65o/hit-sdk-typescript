@@ -4,6 +4,17 @@
  * React hooks for fetching and managing Hit UI specs.
  */
 import type { UISpec } from './types';
+interface NavItem {
+    id: string;
+    label: string;
+    path: string;
+    slots: string[];
+    permissions?: string[];
+    order: number;
+    icon?: string;
+    badge?: string | number;
+    children?: NavItem[];
+}
 interface UseHitUISpecOptions {
     /** API base URL */
     apiBase: string;
@@ -46,6 +57,34 @@ export declare function useHitMutation<T = unknown, R = unknown>(endpoint: strin
     method?: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 }): {
     mutate: (data?: T) => Promise<R>;
+    loading: boolean;
+    error: Error | null;
+};
+/**
+ * Fetch navigation from the ui-render module.
+ */
+export declare function useNavigation(options: {
+    apiBase: string;
+    slot?: string;
+    refetchInterval?: number;
+}): {
+    items: NavItem[];
+    slots: Record<string, NavItem[]>;
+    loading: boolean;
+    error: Error | null;
+    refetch: () => Promise<void>;
+};
+/**
+ * Hook for feature pack operations.
+ */
+export declare function useFeaturePack(options: {
+    apiBase: string;
+    pack: string;
+}): {
+    /** Load a page spec from the feature pack */
+    loadPage: (page: string, params?: Record<string, string>) => Promise<UISpec>;
+    /** Get the base URL for the pack */
+    packUrl: string;
     loading: boolean;
     error: Error | null;
 };

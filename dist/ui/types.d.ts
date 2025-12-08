@@ -379,7 +379,16 @@ export interface LoadingSpec extends BaseSpec {
     /** Loading variant */
     variant?: 'spinner' | 'skeleton' | 'dots';
 }
-export type UISpec = PageSpec | CardSpec | RowSpec | ColumnSpec | GridSpec | TabsSpec | DataTableSpec | StatsGridSpec | TextSpec | BadgeSpec | IconSpec | FormSpec | ButtonSpec | LinkSpec | ModalSpec | AlertSpec | AsyncSpec | LoadingSpec;
+export interface CustomWidgetSpec extends BaseSpec {
+    type: 'CustomWidget';
+    /** Widget name registered by the host app */
+    widget: string;
+    /** Props passed to the widget */
+    props?: Record<string, unknown>;
+    /** Fallback UI if widget not registered */
+    fallback?: UISpec;
+}
+export type UISpec = PageSpec | CardSpec | RowSpec | ColumnSpec | GridSpec | TabsSpec | DataTableSpec | StatsGridSpec | TextSpec | BadgeSpec | IconSpec | FormSpec | ButtonSpec | LinkSpec | ModalSpec | AlertSpec | AsyncSpec | LoadingSpec | CustomWidgetSpec;
 /** Custom component registry for host app overrides */
 export type ComponentRegistry = Partial<Record<UISpec['type'], React.ComponentType<any>>>;
 /** Context passed to all components */
@@ -409,6 +418,8 @@ export interface HitUIRendererProps {
     apiBase: string;
     /** Custom component overrides */
     components?: ComponentRegistry;
+    /** Custom widgets registered by the host app */
+    customWidgets?: CustomWidgetRegistry;
     /** Custom navigate function */
     onNavigate?: (path: string, newTab?: boolean) => void;
     /** Custom action handler for 'custom' action type */
@@ -417,5 +428,25 @@ export interface HitUIRendererProps {
     errorFallback?: React.ReactNode;
     /** Loading fallback */
     loadingFallback?: React.ReactNode;
+}
+/** Custom widget registry for host app widgets */
+export type CustomWidgetRegistry = Record<string, React.ComponentType<any>>;
+/** Feature pack context for apps using feature packs */
+export interface FeaturePackContext {
+    /** UI render module base URL */
+    uiRenderUrl: string;
+    /** Enabled feature packs */
+    enabledPacks: string[];
+    /** Navigate to a feature pack page */
+    navigateToPackPage: (pack: string, page: string) => void;
+}
+/** Props for feature pack page component */
+export interface FeaturePackPageProps {
+    /** Feature pack name */
+    pack: string;
+    /** Page name within the pack */
+    page: string;
+    /** Additional query parameters */
+    params?: Record<string, string>;
 }
 //# sourceMappingURL=types.d.ts.map

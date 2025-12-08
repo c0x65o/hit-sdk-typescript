@@ -468,6 +468,20 @@ export interface LoadingSpec extends BaseSpec {
 }
 
 // ============================================================================
+// Custom Widget Component
+// ============================================================================
+
+export interface CustomWidgetSpec extends BaseSpec {
+  type: 'CustomWidget';
+  /** Widget name registered by the host app */
+  widget: string;
+  /** Props passed to the widget */
+  props?: Record<string, unknown>;
+  /** Fallback UI if widget not registered */
+  fallback?: UISpec;
+}
+
+// ============================================================================
 // Union Type
 // ============================================================================
 
@@ -495,7 +509,9 @@ export type UISpec =
   | AlertSpec
   // Async
   | AsyncSpec
-  | LoadingSpec;
+  | LoadingSpec
+  // Custom
+  | CustomWidgetSpec;
 
 // ============================================================================
 // Renderer Types
@@ -534,6 +550,8 @@ export interface HitUIRendererProps {
   apiBase: string;
   /** Custom component overrides */
   components?: ComponentRegistry;
+  /** Custom widgets registered by the host app */
+  customWidgets?: CustomWidgetRegistry;
   /** Custom navigate function */
   onNavigate?: (path: string, newTab?: boolean) => void;
   /** Custom action handler for 'custom' action type */
@@ -542,5 +560,28 @@ export interface HitUIRendererProps {
   errorFallback?: React.ReactNode;
   /** Loading fallback */
   loadingFallback?: React.ReactNode;
+}
+
+/** Custom widget registry for host app widgets */
+export type CustomWidgetRegistry = Record<string, React.ComponentType<any>>;
+
+/** Feature pack context for apps using feature packs */
+export interface FeaturePackContext {
+  /** UI render module base URL */
+  uiRenderUrl: string;
+  /** Enabled feature packs */
+  enabledPacks: string[];
+  /** Navigate to a feature pack page */
+  navigateToPackPage: (pack: string, page: string) => void;
+}
+
+/** Props for feature pack page component */
+export interface FeaturePackPageProps {
+  /** Feature pack name */
+  pack: string;
+  /** Page name within the pack */
+  page: string;
+  /** Additional query parameters */
+  params?: Record<string, string>;
 }
 

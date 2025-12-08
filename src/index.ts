@@ -60,6 +60,22 @@ export type {
   HitEventsOptions,
 } from './events.js';
 
+// HIT Provider - Top-level context provider for HIT apps
+export {
+  HitProvider,
+  useHit,
+  useHitRole,
+  useHitRoles,
+  useModuleUrl,
+} from './provider.js';
+export type {
+  HitContext,
+  HitTheme,
+  HitUser,
+  FeaturePackClaim,
+  HitProviderProps,
+} from './provider.js';
+
 // UI System (Server-Driven UI for components)
 // Note: These exports require React. For server-side code, import from '@hit/sdk/ui' directly
 // or use the separate UI entry point '@hit/sdk/ui' which is designed for client-side use.

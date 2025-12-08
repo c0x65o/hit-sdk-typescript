@@ -6,9 +6,12 @@
  */
 
 import React, { createContext, useContext, useCallback, useState } from 'react';
-import type { ActionSpec, HitUIContext, UISpec } from './types';
+import type { ActionSpec, HitUIContext, UISpec, CustomWidgetRegistry } from './types';
 
 const HitUIContextInternal = createContext<HitUIContext | null>(null);
+
+// Custom widgets context
+const CustomWidgetsContext = createContext<CustomWidgetRegistry>({});
 
 export function useHitUI(): HitUIContext {
   const context = useContext(HitUIContextInternal);
@@ -18,9 +21,19 @@ export function useHitUI(): HitUIContext {
   return context;
 }
 
+export function useCustomWidgets(): CustomWidgetRegistry {
+  return useContext(CustomWidgetsContext);
+}
+
+export function useCustomWidget(name: string): React.ComponentType<any> | null {
+  const widgets = useCustomWidgets();
+  return widgets[name] || null;
+}
+
 interface HitUIProviderProps {
   apiBase: string;
   children: React.ReactNode;
+  customWidgets?: CustomWidgetRegistry;
   onNavigate?: (path: string, newTab?: boolean) => void;
   onCustomAction?: (name: string, payload?: Record<string, unknown>) => void;
 }
@@ -28,6 +41,7 @@ interface HitUIProviderProps {
 export function HitUIProvider({
   apiBase,
   children,
+  customWidgets = {},
   onNavigate,
   onCustomAction,
 }: HitUIProviderProps) {
@@ -167,11 +181,13 @@ export function HitUIProvider({
 
   return (
     <HitUIContextInternal.Provider value={contextValue} key={refreshKey}>
-      {children}
-      {/* Render modals */}
-      {modals.map((modalSpec, index) => (
-        <ModalPortal key={index} spec={modalSpec} onClose={closeModal} />
-      ))}
+      <CustomWidgetsContext.Provider value={customWidgets}>
+        {children}
+        {/* Render modals */}
+        {modals.map((modalSpec, index) => (
+          <ModalPortal key={index} spec={modalSpec} onClose={closeModal} />
+        ))}
+      </CustomWidgetsContext.Provider>
     </HitUIContextInternal.Provider>
   );
 }

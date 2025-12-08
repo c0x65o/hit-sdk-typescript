@@ -25,11 +25,11 @@
  * ```
  */
 // Context
-export { useHitUI, HitUIProvider } from './context';
+export { useHitUI, HitUIProvider, useCustomWidgets, useCustomWidget } from './context';
 // Hooks
-export { useHitUISpec, useHitData, useHitMutation } from './hooks';
+export { useHitUISpec, useHitData, useHitMutation, useNavigation, useFeaturePack } from './hooks';
 // Renderer
-export { HitUIRenderer, HitUIFromEndpoint, RenderSpec, RenderChildren } from './renderer';
+export { HitUIRenderer, HitUIFromEndpoint, HitFeaturePackPage, HitFeaturePackRouter, RenderSpec, RenderChildren, } from './renderer';
 // Components (for custom overrides)
 export { Page } from './components/Page';
 export { Card } from './components/Card';

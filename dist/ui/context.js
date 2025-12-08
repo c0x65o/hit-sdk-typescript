@@ -7,6 +7,8 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
  */
 import { createContext, useContext, useCallback, useState } from 'react';
 const HitUIContextInternal = createContext(null);
+// Custom widgets context
+const CustomWidgetsContext = createContext({});
 export function useHitUI() {
     const context = useContext(HitUIContextInternal);
     if (!context) {
@@ -14,7 +16,14 @@ export function useHitUI() {
     }
     return context;
 }
-export function HitUIProvider({ apiBase, children, onNavigate, onCustomAction, }) {
+export function useCustomWidgets() {
+    return useContext(CustomWidgetsContext);
+}
+export function useCustomWidget(name) {
+    const widgets = useCustomWidgets();
+    return widgets[name] || null;
+}
+export function HitUIProvider({ apiBase, children, customWidgets = {}, onNavigate, onCustomAction, }) {
     const [modals, setModals] = useState([]);
     const [refreshKey, setRefreshKey] = useState(0);
     const navigate = useCallback((path, newTab = false) => {
@@ -129,7 +138,7 @@ export function HitUIProvider({ apiBase, children, onNavigate, onCustomAction, }
         closeModal,
         navigate,
     };
-    return (_jsxs(HitUIContextInternal.Provider, { value: contextValue, children: [children, modals.map((modalSpec, index) => (_jsx(ModalPortal, { spec: modalSpec, onClose: closeModal }, index)))] }, refreshKey));
+    return (_jsx(HitUIContextInternal.Provider, { value: contextValue, children: _jsxs(CustomWidgetsContext.Provider, { value: customWidgets, children: [children, modals.map((modalSpec, index) => (_jsx(ModalPortal, { spec: modalSpec, onClose: closeModal }, index)))] }) }, refreshKey));
 }
 // Simple modal portal - will be replaced by actual Modal component
 function ModalPortal({ spec, onClose, }) {

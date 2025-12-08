@@ -22,6 +22,8 @@ export { AuthClient, auth, register, login, verifyEmail, enableTwoFactor, verify
 export type { AuthTokenResponse, FeatureConfig } from './auth.js';
 export { HitEvents, events, getEventsClient, } from './events.js';
 export type { EventMessage, EventSubscription, EventHandler, HitEventsOptions, } from './events.js';
+export { HitProvider, useHit, useHitRole, useHitRoles, useModuleUrl, } from './provider.js';
+export type { HitContext, HitTheme, HitUser, FeaturePackClaim, HitProviderProps, } from './provider.js';
 export { HitUIRenderer, HitUIFromEndpoint, HitUIProvider, useHitUI, useHitUISpec, useHitData, useHitMutation, } from './ui/index.js';
 export type { UISpec, ActionSpec, HitUIRendererProps, ComponentRegistry, } from './ui/index.js';
 //# sourceMappingURL=index.d.ts.map

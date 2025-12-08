@@ -124,3 +124,91 @@ export function useHitMutation(endpoint, options) {
     }, [endpoint, apiBase, method]);
     return { mutate, loading, error };
 }
+/**
+ * Fetch navigation from the ui-render module.
+ */
+export function useNavigation(options) {
+    const { apiBase, slot, refetchInterval = 0 } = options;
+    const [slots, setSlots] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const fetchNav = useCallback(async () => {
+        const url = slot
+            ? `${apiBase}/ui/nav?slot=${encodeURIComponent(slot)}`
+            : `${apiBase}/ui/nav`;
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await fetch(url, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || response.statusText);
+            }
+            const data = await response.json();
+            if (slot && data.items) {
+                // Single slot response
+                setSlots({ [slot]: data.items });
+            }
+            else if (data.slots) {
+                // All slots response
+                setSlots(data.slots);
+            }
+        }
+        catch (err) {
+            setError(err instanceof Error ? err : new Error(String(err)));
+        }
+        finally {
+            setLoading(false);
+        }
+    }, [apiBase, slot]);
+    useEffect(() => {
+        fetchNav();
+    }, [fetchNav]);
+    useEffect(() => {
+        if (refetchInterval > 0) {
+            const interval = setInterval(fetchNav, refetchInterval);
+            return () => clearInterval(interval);
+        }
+    }, [refetchInterval, fetchNav]);
+    // Get items for the requested slot (or empty array)
+    const items = slot ? (slots[slot] || []) : [];
+    return { items, slots, loading, error, refetch: fetchNav };
+}
+/**
+ * Hook for feature pack operations.
+ */
+export function useFeaturePack(options) {
+    const { apiBase, pack } = options;
+    const packUrl = `${apiBase}/ui/${pack}`;
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const loadPage = useCallback(async (page, params) => {
+        const queryString = params
+            ? `?${new URLSearchParams(params).toString()}`
+            : '';
+        const url = `${packUrl}/${page}${queryString}`;
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await fetch(url, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || response.statusText);
+            }
+            return await response.json();
+        }
+        catch (err) {
+            const error = err instanceof Error ? err : new Error(String(err));
+            setError(error);
+            throw error;
+        }
+        finally {
+            setLoading(false);
+        }
+    }, [packUrl]);
+    return { loadPage, packUrl, loading, error };
+}
