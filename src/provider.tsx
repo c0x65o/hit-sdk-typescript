@@ -47,8 +47,6 @@ export interface HitUser {
 export interface HitContext {
   /** Module URLs for SDK calls */
   moduleUrls: Record<string, string>;
-  /** UI render module URL */
-  uiRenderUrl: string;
   /** Feature packs enabled for this app */
   featurePacks: Record<string, FeaturePackClaim>;
   /** Project theme */
@@ -195,13 +193,6 @@ export function HitProvider({
       ...themeOverride,
     };
 
-    const uiRenderUrl =
-      moduleUrls['ui-render'] ||
-      moduleUrls['ui_render'] ||
-      process.env.NEXT_PUBLIC_HIT_UI_RENDER_URL ||
-      process.env.HIT_UI_RENDER_URL ||
-      '/api/ui'; // Default to proxy route
-
     const projectSlug =
       parsedToken?.projectSlug ||
       process.env.NEXT_PUBLIC_HIT_PROJECT_SLUG ||
@@ -216,7 +207,6 @@ export function HitProvider({
 
     return {
       moduleUrls,
-      uiRenderUrl,
       featurePacks,
       theme,
       user: parsedToken?.user || null,
@@ -273,7 +263,7 @@ function getEnvModuleUrls(): Record<string, string> {
   const urls: Record<string, string> = {};
 
   // Check common module env vars
-  const modules = ['auth', 'email', 'events', 'ping-pong', 'ui-render'];
+  const modules = ['auth', 'email', 'events', 'ping-pong'];
 
   for (const module of modules) {
     const envKey = `HIT_${module.toUpperCase().replace(/-/g, '_')}_URL`;
