@@ -103,6 +103,24 @@ export {
   RenderChildren,
 } from './renderer';
 
+// Dynamic Router
+export {
+  HitDynamicRouter,
+  refreshRoutes,
+  type HitDynamicRouterProps,
+} from './router';
+
+// Route Matching
+export {
+  matchRoute,
+  findMatchingRoute,
+  fetchRoutes,
+  clearRoutesCache,
+  type Route,
+  type MatchedRoute,
+  type RoutesResponse,
+} from './route-matcher';
+
 // Components (for custom overrides)
 export { Page } from './components/Page';
 export { Card } from './components/Card';
