@@ -103,11 +103,6 @@ export function HitProvider({ children, moduleUrls: moduleUrlsOverride, theme: t
             ...parsedToken?.theme,
             ...themeOverride,
         };
-        const uiRenderUrl = moduleUrls['ui-render'] ||
-            moduleUrls['ui_render'] ||
-            process.env.NEXT_PUBLIC_HIT_UI_RENDER_URL ||
-            process.env.HIT_UI_RENDER_URL ||
-            '/api/ui'; // Default to proxy route
         const projectSlug = parsedToken?.projectSlug ||
             process.env.NEXT_PUBLIC_HIT_PROJECT_SLUG ||
             process.env.HIT_PROJECT_SLUG ||
@@ -118,7 +113,6 @@ export function HitProvider({ children, moduleUrls: moduleUrlsOverride, theme: t
             'development';
         return {
             moduleUrls,
-            uiRenderUrl,
             featurePacks,
             theme,
             user: parsedToken?.user || null,
@@ -162,7 +156,7 @@ function parseJWTClaims(token) {
 function getEnvModuleUrls() {
     const urls = {};
     // Check common module env vars
-    const modules = ['auth', 'email', 'events', 'ping-pong', 'ui-render'];
+    const modules = ['auth', 'email', 'events', 'ping-pong'];
     for (const module of modules) {
         const envKey = `HIT_${module.toUpperCase().replace(/-/g, '_')}_URL`;
         const publicEnvKey = `NEXT_PUBLIC_${envKey}`;

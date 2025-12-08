@@ -28,6 +28,8 @@ export type { BaseSpec, UISpec, ComponentRegistry, HitUIContext, HitUIRendererPr
 export { useHitUI, HitUIProvider, useCustomWidgets, useCustomWidget } from './context';
 export { useHitUISpec, useHitData, useHitMutation, useNavigation, useFeaturePack } from './hooks';
 export { HitUIRenderer, HitUIFromEndpoint, HitFeaturePackPage, HitFeaturePackRouter, RenderSpec, RenderChildren, } from './renderer';
+export { HitDynamicRouter, refreshRoutes, type HitDynamicRouterProps, } from './router';
+export { matchRoute, findMatchingRoute, fetchRoutes, clearRoutesCache, type Route, type MatchedRoute, type RoutesResponse, } from './route-matcher';
 export { Page } from './components/Page';
 export { Card } from './components/Card';
 export { Row, Column, Grid } from './components/Layout';

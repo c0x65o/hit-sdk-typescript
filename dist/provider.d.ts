@@ -42,8 +42,6 @@ export interface HitUser {
 export interface HitContext {
     /** Module URLs for SDK calls */
     moduleUrls: Record<string, string>;
-    /** UI render module URL */
-    uiRenderUrl: string;
     /** Feature packs enabled for this app */
     featurePacks: Record<string, FeaturePackClaim>;
     /** Project theme */

@@ -30,6 +30,10 @@ export { useHitUI, HitUIProvider, useCustomWidgets, useCustomWidget } from './co
 export { useHitUISpec, useHitData, useHitMutation, useNavigation, useFeaturePack } from './hooks';
 // Renderer
 export { HitUIRenderer, HitUIFromEndpoint, HitFeaturePackPage, HitFeaturePackRouter, RenderSpec, RenderChildren, } from './renderer';
+// Dynamic Router
+export { HitDynamicRouter, refreshRoutes, } from './router';
+// Route Matching
+export { matchRoute, findMatchingRoute, fetchRoutes, clearRoutesCache, } from './route-matcher';
 // Components (for custom overrides)
 export { Page } from './components/Page';
 export { Card } from './components/Card';
