@@ -114,6 +114,18 @@ export function Form({
         throw new Error(error.detail || response.statusText);
       }
 
+      // Parse response to check for auth tokens
+      const data = await response.json().catch(() => ({}));
+      
+      // If response contains auth tokens, store them in localStorage
+      // This handles login/register forms automatically
+      if (data.token && typeof window !== 'undefined') {
+        localStorage.setItem('hit_auth_token', data.token);
+        if (data.refresh_token) {
+          localStorage.setItem('hit_auth_refresh_token', data.refresh_token);
+        }
+      }
+
       if (onSuccess) {
         await executeAction(onSuccess);
       }
