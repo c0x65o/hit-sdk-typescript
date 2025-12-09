@@ -53,16 +53,18 @@ export interface HitDynamicRouterProps {
 /**
  * Hook to get the current pathname
  * Works with Next.js App Router
+ * 
+ * NOTE: Always initializes with '/' to avoid hydration mismatch,
+ * then updates to actual pathname in useEffect.
  */
 function usePathname(): string {
-  const [pathname, setPathname] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return window.location.pathname;
-    }
-    return '/';
-  });
+  // Always start with '/' to match server render and avoid hydration errors
+  const [pathname, setPathname] = useState<string>('/');
 
   useEffect(() => {
+    // Set actual pathname after hydration
+    setPathname(window.location.pathname);
+
     // Update pathname on navigation
     const handleNavigation = () => {
       setPathname(window.location.pathname);
@@ -70,9 +72,6 @@ function usePathname(): string {
 
     // Listen for popstate (browser back/forward)
     window.addEventListener('popstate', handleNavigation);
-
-    // Set initial pathname
-    setPathname(window.location.pathname);
 
     return () => {
       window.removeEventListener('popstate', handleNavigation);
