@@ -424,7 +424,7 @@
 .hit-form-fields {
   display: flex;
   flex-direction: column;
-  gap: var(--hit-space-md);
+  gap: var(--hit-space-lg);
 }
 
 .hit-form-horizontal .hit-form-fields {
@@ -446,6 +446,8 @@
 .hit-field-label {
   font-size: var(--hit-font-size-sm);
   font-weight: 500;
+  color: var(--hit-text);
+  margin-bottom: var(--hit-space-xs);
 }
 
 .hit-field-required {
@@ -454,12 +456,19 @@
 }
 
 .hit-field-input {
-  padding: var(--hit-space-sm) var(--hit-space-md);
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--hit-bg);
   border: 1px solid var(--hit-border);
-  border-radius: var(--hit-radius-md);
+  border-radius: var(--hit-radius-lg);
   font-size: var(--hit-font-size-md);
   font-family: inherit;
+  color: var(--hit-text);
   transition: all var(--hit-transition);
+}
+
+.hit-field-input::placeholder {
+  color: var(--hit-text-muted);
 }
 
 .hit-field-input:focus {
@@ -483,7 +492,9 @@
 
 .hit-field-error-text {
   font-size: var(--hit-font-size-sm);
+  font-weight: 500;
   color: var(--hit-error);
+  margin-top: var(--hit-space-xs);
 }
 
 .hit-form-actions {
@@ -494,11 +505,59 @@
 }
 
 .hit-form-error {
-  background: color-mix(in srgb, var(--hit-error) 10%, transparent);
-  color: var(--hit-error);
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
   padding: var(--hit-space-sm) var(--hit-space-md);
   border-radius: var(--hit-radius-md);
   margin-bottom: var(--hit-space-md);
+  font-size: var(--hit-font-size-sm);
+  font-weight: 500;
+}
+
+/* Password field wrapper and toggle */
+.hit-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hit-password-input {
+  padding-right: 3rem !important;
+}
+
+.hit-password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--hit-radius-sm);
+  color: var(--hit-text-muted);
+  cursor: pointer;
+  transition: all var(--hit-transition);
+}
+
+.hit-password-toggle:hover {
+  color: var(--hit-text);
+  background: var(--hit-bg-secondary);
+}
+
+.hit-password-toggle:focus {
+  outline: none;
+  color: var(--hit-text);
+}
+
+.hit-password-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .hit-checkbox-label {
