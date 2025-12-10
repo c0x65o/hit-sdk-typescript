@@ -24,4 +24,5 @@ export { HitEvents, events, getEventsClient, } from './events.js';
 export type { EventMessage, EventSubscription, EventHandler, HitEventsOptions, } from './events.js';
 export { HitProvider, useHit, useHitRole, useHitRoles, useModuleUrl, } from './provider.js';
 export type { HitContext, HitTheme, HitUser, FeaturePackClaim, HitProviderProps, } from './provider.js';
+export { parseDate, formatDate, formatDateTime, formatDateShort, formatTime, formatRelativeTime, formatISO, formatSmart, } from './date-utils.js';
 //# sourceMappingURL=index.d.ts.map

@@ -76,3 +76,15 @@ export type {
   HitProviderProps,
 } from './provider.js';
 
+// Date utilities - Browser timezone localization
+export {
+  parseDate,
+  formatDate,
+  formatDateTime,
+  formatDateShort,
+  formatTime,
+  formatRelativeTime,
+  formatISO,
+  formatSmart,
+} from './date-utils.js';
+
