@@ -41,7 +41,7 @@ class TokenManager {
     this.serviceName = options.serviceName || (isNode ? process.env.HIT_SERVICE_NAME : undefined);
     
     // Token resolution: Use HIT_SERVICE_TOKEN (service name encoded in token claims)
-    this.serviceToken = options.serviceToken || (isNode ? process.env.HIT_SERVICE_TOKEN : undefined);
+      this.serviceToken = options.serviceToken || (isNode ? process.env.HIT_SERVICE_TOKEN : undefined);
   }
 
   /**
