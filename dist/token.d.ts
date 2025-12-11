@@ -1,22 +1,19 @@
 /**
  * Token management for Hit SDK authentication.
  *
- * Handles fetching and caching service/project tokens from CAC for SDK requests.
+ * Handles fetching and caching service tokens from CAC for SDK requests.
  *
- * Token Resolution Order (for local development):
- * 1. HIT_SERVICE_{SERVICE_NAME}_TOKEN (per-service token with method-level ACL)
- *    Example: HIT_SERVICE_WEB_TOKEN, HIT_SERVICE_API_TOKEN
- * 2. HIT_SERVICE_TOKEN (generic service token)
- * 3. HIT_PROJECT_TOKEN (legacy project-wide tokens)
- * 4. Explicit token passed in constructor
+ * Token Resolution Order:
+ * 1. HIT_SERVICE_TOKEN (service token with method-level ACL and service name in claims)
+ * 2. Explicit token passed in constructor
  *
- * The HIT_SERVICE_NAME environment variable determines which service token to use.
+ * Service tokens encode the service name in their 'svc' claim, so modules can
+ * reverse-lookup which service is making the request.
  */
 interface TokenManagerOptions {
     cacUrl?: string;
     projectSlug?: string;
     namespace?: string;
-    projectToken?: string;
     serviceToken?: string;
     serviceName?: string;
 }
@@ -26,19 +23,16 @@ declare class TokenManager {
     private namespace;
     private serviceName?;
     private serviceToken?;
-    private projectToken?;
     private cachedToken?;
     private tokenExpiresAt?;
     constructor(options?: TokenManagerOptions);
     /**
-     * Get a valid service or project token.
+     * Get a valid service token.
      *
      * Token resolution order:
-     * 1. Per-service token (HIT_SERVICE_{NAME}_TOKEN with ACL)
-     * 2. Generic service token (HIT_SERVICE_TOKEN)
-     * 3. Legacy project token (HIT_PROJECT_TOKEN)
-     * 4. Cached token from previous fetch
-     * 5. Fetch from CAC (if configured)
+     * 1. Service token (HIT_SERVICE_TOKEN with ACL and service name in claims)
+     * 2. Cached token from previous fetch
+     * 3. Fetch from CAC (if configured)
      *
      * @returns Token string, or undefined if not available
      */
