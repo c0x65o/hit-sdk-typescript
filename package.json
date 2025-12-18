@@ -1,6 +1,6 @@
 {
   "name": "@hit/sdk",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "Strongly-typed TypeScript client libraries for Hit platform microservices",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/post-build.js",
     "prepare": "npm run build",
     "test": "echo \"No tests yet\"",
     "prepublishOnly": "npm run build"
