@@ -1,6 +1,6 @@
 {
   "name": "@hit/sdk",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "description": "Strongly-typed TypeScript client libraries for Hit platform microservices",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,6 +10,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js",
+      "default": "./dist/server.js"
     },
     "./next": {
       "types": "./dist/next.d.ts",
