@@ -59,7 +59,7 @@ export declare function HitUIFromEndpoint({ endpoint, apiBase, components, custo
  *
  * @example
  * ```tsx
- * <HitFeaturePackPage pack="auth-admin" page="users" />
+ * <HitFeaturePackPage pack="auth-core" page="users" />
  * ```
  */
 export declare function HitFeaturePackPage({ pack, page, params, apiBase, customWidgets, onNavigate, onCustomAction, loadingFallback, errorFallback, }: FeaturePackPageProps & Omit<HitUIRendererProps, 'spec'>): import("react/jsx-runtime").JSX.Element;

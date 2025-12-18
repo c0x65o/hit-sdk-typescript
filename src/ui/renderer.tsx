@@ -257,7 +257,7 @@ export function HitUIFromEndpoint({
  *
  * @example
  * ```tsx
- * <HitFeaturePackPage pack="auth-admin" page="users" />
+ * <HitFeaturePackPage pack="auth-core" page="users" />
  * ```
  */
 export function HitFeaturePackPage({

@@ -157,7 +157,7 @@ export function HitUIFromEndpoint({ endpoint, apiBase, components = {}, customWi
  *
  * @example
  * ```tsx
- * <HitFeaturePackPage pack="auth-admin" page="users" />
+ * <HitFeaturePackPage pack="auth-core" page="users" />
  * ```
  */
 export function HitFeaturePackPage({ pack, page, params = {}, apiBase = '/api/ui', customWidgets = {}, onNavigate, onCustomAction, loadingFallback, errorFallback, }) {
