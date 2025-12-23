@@ -1,6 +1,6 @@
 {
   "name": "@hit/sdk",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "description": "Strongly-typed TypeScript client libraries for Hit platform microservices",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,6 +25,21 @@
       "types": "./dist/ui/index.d.ts",
       "import": "./dist/ui/index.js",
       "default": "./dist/ui/index.js"
+    },
+    "./ui/context": {
+      "types": "./dist/ui/context.d.ts",
+      "import": "./dist/ui/context.js",
+      "default": "./dist/ui/context.js"
+    },
+    "./ui/hooks": {
+      "types": "./dist/ui/hooks.d.ts",
+      "import": "./dist/ui/hooks.js",
+      "default": "./dist/ui/hooks.js"
+    },
+    "./ui/types": {
+      "types": "./dist/ui/types.d.ts",
+      "import": "./dist/ui/types.js",
+      "default": "./dist/ui/types.js"
     }
   },
   "scripts": {
