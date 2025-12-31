@@ -1,10 +1,11 @@
 {
   "name": "@hit/sdk",
-  "version": "1.2.18",
+  "version": "1.2.19",
   "description": "Strongly-typed TypeScript client libraries for Hit platform microservices",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -40,6 +41,26 @@
       "types": "./dist/ui/types.d.ts",
       "import": "./dist/ui/types.js",
       "default": "./dist/ui/types.js"
+    },
+    "./date-utils": {
+      "types": "./dist/date-utils.d.ts",
+      "import": "./dist/date-utils.js",
+      "default": "./dist/date-utils.js"
+    },
+    "./auth": {
+      "types": "./dist/auth.d.ts",
+      "import": "./dist/auth.js",
+      "default": "./dist/auth.js"
+    },
+    "./events": {
+      "types": "./dist/events.d.ts",
+      "import": "./dist/events.js",
+      "default": "./dist/events.js"
+    },
+    "./provider": {
+      "types": "./dist/provider.d.ts",
+      "import": "./dist/provider.js",
+      "default": "./dist/provider.js"
     }
   },
   "scripts": {
