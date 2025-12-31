@@ -181,3 +181,4 @@ dist/
 .hit/service_tokens.json
 .hit/generated/.manifest_hash
 .hit_deps_snapshot.json
+.hit/generated/
