@@ -10,12 +10,14 @@ interface TextProps extends TextSpec {
 }
 
 export function Text({ content, variant = 'body', className, style }: TextProps) {
-  const Tag = variant.startsWith('h') ? (variant as keyof JSX.IntrinsicElements) : 'p';
+  // React 19 types no longer provide the global `JSX` namespace; use React.JSX instead.
+  // Also prefer createElement here to avoid TS treating `Tag` as an invalid JSX component.
+  const Tag: keyof React.JSX.IntrinsicElements = variant.startsWith('h') ? (variant as any) : 'p';
 
-  return (
-    <Tag className={`hit-text hit-text-${variant} ${className || ''}`} style={style}>
-      {content}
-    </Tag>
+  return React.createElement(
+    Tag,
+    { className: `hit-text hit-text-${variant} ${className || ''}`, style },
+    content,
   );
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@hit/sdk",
-  "version": "1.2.19",
+  "version": "1.2.20",
   "description": "Strongly-typed TypeScript client libraries for Hit platform microservices",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -83,6 +83,7 @@
   "devDependencies": {
     "@types/node": "^20.14.0",
     "@types/react": "^19.0.0",
+    "react": "19.2.3",
     "typescript": "^5.4.0"
   },
   "peerDependencies": {
