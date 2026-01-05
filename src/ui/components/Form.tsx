@@ -5,6 +5,7 @@
 import React, { useState, FormEvent } from 'react';
 import type { FormSpec, FieldSpec } from '../types';
 import { useHitUI } from '../context';
+import { uiFetch } from '../http';
 
 // Eye icons for password toggle
 const EyeIcon = () => (
@@ -119,7 +120,7 @@ export function Form({
 
     try {
       setLoading(true);
-      const response = await fetch(url, {
+      const response = await uiFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

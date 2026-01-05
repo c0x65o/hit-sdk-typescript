@@ -133,7 +133,8 @@ export async function fetchRoutes(apiBase: string): Promise<Route[]> {
   }
 
   try {
-    const response = await fetch(`${apiBase}/routes`, {
+    const { uiFetch } = await import('./http');
+    const response = await uiFetch(`${apiBase}/routes`, {
       headers: {
         'Content-Type': 'application/json',
       },

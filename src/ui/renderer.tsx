@@ -20,6 +20,7 @@ import { Form } from './components/Form';
 import { Button, Link } from './components/Actions';
 import { Modal, Alert } from './components/Modal';
 import { Async, Loading } from './components/Async';
+import { uiFetch } from './http';
 
 /**
  * CustomWidget component - renders app-registered widgets
@@ -210,7 +211,7 @@ export function HitUIFromEndpoint({
       ? endpoint
       : `${apiBase}${endpoint}`;
 
-    fetch(url, { headers: { 'Content-Type': 'application/json' } })
+    uiFetch(url, { headers: { 'Content-Type': 'application/json' } })
       .then((res) => {
         if (!res.ok) throw new Error(res.statusText);
         return res.json();

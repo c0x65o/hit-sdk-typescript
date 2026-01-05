@@ -7,6 +7,7 @@
 
 import React, { createContext, useContext, useCallback, useState } from 'react';
 import type { ActionSpec, HitUIContext, UISpec, CustomWidgetRegistry } from './types';
+import { uiFetch } from './http';
 
 const HitUIContextInternal = createContext<HitUIContext | null>(null);
 
@@ -105,7 +106,7 @@ export function HitUIProvider({
             : `${apiBase}${endpoint}`;
 
           try {
-            const response = await fetch(url, {
+            const response = await uiFetch(url, {
               method: action.method,
               headers: { 'Content-Type': 'application/json' },
               body: action.body ? JSON.stringify(action.body) : undefined,

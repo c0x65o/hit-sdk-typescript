@@ -8,6 +8,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import type { DataTableSpec, ButtonSpec, UISpec, ActionSpec } from '../types';
 import { useHitUI } from '../context';
 import { RenderChildren } from '../renderer';
+import { uiFetch } from '../http';
 
 interface DataTableProps extends DataTableSpec {
   registry: Record<string, React.ComponentType<any>>;
@@ -61,7 +62,7 @@ export function DataTable({
 
     try {
       setLoading(true);
-      const response = await fetch(fullUrl, {
+      const response = await uiFetch(fullUrl, {
         headers: { 'Content-Type': 'application/json' },
       });
 

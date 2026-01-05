@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { UISpec } from './types';
+import { uiFetch } from './http';
 
 // Navigation item type (matches the feature pack types)
 interface NavItem {
@@ -62,7 +63,7 @@ export function useHitUISpec(
       setLoading(true);
       setError(null);
 
-      const response = await fetch(url, {
+      const response = await uiFetch(url, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -125,7 +126,7 @@ export function useHitData<T = unknown>(
       setLoading(true);
       setError(null);
 
-      const response = await fetch(url, {
+      const response = await uiFetch(url, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -176,7 +177,7 @@ export function useHitMutation<T = unknown, R = unknown>(
         setLoading(true);
         setError(null);
 
-        const response = await fetch(url, {
+        const response = await uiFetch(url, {
           method,
           headers: { 'Content-Type': 'application/json' },
           body: data ? JSON.stringify(data) : undefined,
@@ -231,7 +232,7 @@ export function useNavigation(options: {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(url, {
+      const response = await uiFetch(url, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -304,7 +305,7 @@ export function useFeaturePack(options: {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(url, {
+        const response = await uiFetch(url, {
           headers: { 'Content-Type': 'application/json' },
         });
 
