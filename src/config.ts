@@ -259,8 +259,12 @@ export function getApiKey(serviceName: string): string | null {
  * Get WebSocket URL for a service.
  *
  * Priority:
- * 1. Environment variable: HIT_<SERVICE>_WS_URL
+ * 1. Environment variable: HIT_<SERVICE>_WS_URL (NEXT_PUBLIC_ prefixed for browser)
  * 2. Transform HTTP URL to WS (local development fallback)
+ *
+ * IMPORTANT: For deployed applications, NEXT_PUBLIC_HIT_EVENTS_WS_URL must be set at
+ * BUILD TIME (not runtime) because Next.js inlines these values during the build.
+ * Configure this in your CI/CD pipeline or Docker build args.
  *
  * @param serviceName - Service name (e.g., "events")
  * @returns WebSocket URL (e.g., "ws://localhost:8098" or "wss://events.project.domain.com")
@@ -293,6 +297,18 @@ export function getWebSocketUrl(serviceName: string): string {
     if (typeof process !== 'undefined' && process.env && process.env[publicEnvKey]) {
       // @ts-ignore
       return process.env[publicEnvKey];
+    }
+
+    // Check if we're in production without proper config - log warning
+    const host = window.location.host;
+    const isLocalhost = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+    if (!isLocalhost) {
+      console.warn(
+        `[HIT SDK] WebSocket URL not configured for ${serviceName}. ` +
+        `NEXT_PUBLIC_HIT_${normalizedName}_WS_URL must be set at BUILD TIME. ` +
+        `Falling back to localhost which will fail in production. ` +
+        `Configure this in your CI/CD pipeline or hit.yaml links section.`
+      );
     }
   }
 
