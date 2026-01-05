@@ -134,6 +134,9 @@ export { Button, Link } from './components/Actions';
 export { Modal, Alert } from './components/Modal';
 export { Async, Loading } from './components/Async';
 
+// HTTP helpers (for authenticated fetch in feature pack pages)
+export { uiFetch } from './http';
+
 // Styles - users should import this in their app
 // import '@hit/sdk/ui/styles.css';
 
