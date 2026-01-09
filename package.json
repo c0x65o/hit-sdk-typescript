@@ -8,67 +8,56 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./server": {
-      "development": "./src/server.ts",
       "types": "./dist/server.d.ts",
       "import": "./dist/server.js",
       "default": "./dist/server.js"
     },
     "./next": {
-      "development": "./src/next.ts",
       "types": "./dist/next.d.ts",
       "import": "./dist/next.js",
       "default": "./dist/next.js"
     },
     "./ui": {
-      "development": "./src/ui/index.ts",
       "types": "./dist/ui/index.d.ts",
       "import": "./dist/ui/index.js",
       "default": "./dist/ui/index.js"
     },
     "./ui/context": {
-      "development": "./src/ui/context.ts",
       "types": "./dist/ui/context.d.ts",
       "import": "./dist/ui/context.js",
       "default": "./dist/ui/context.js"
     },
     "./ui/hooks": {
-      "development": "./src/ui/hooks.ts",
       "types": "./dist/ui/hooks.d.ts",
       "import": "./dist/ui/hooks.js",
       "default": "./dist/ui/hooks.js"
     },
     "./ui/types": {
-      "development": "./src/ui/types.ts",
       "types": "./dist/ui/types.d.ts",
       "import": "./dist/ui/types.js",
       "default": "./dist/ui/types.js"
     },
     "./date-utils": {
-      "development": "./src/date-utils.ts",
       "types": "./dist/date-utils.d.ts",
       "import": "./dist/date-utils.js",
       "default": "./dist/date-utils.js"
     },
     "./auth": {
-      "development": "./src/auth.ts",
       "types": "./dist/auth.d.ts",
       "import": "./dist/auth.js",
       "default": "./dist/auth.js"
     },
     "./events": {
-      "development": "./src/events.ts",
       "types": "./dist/events.d.ts",
       "import": "./dist/events.js",
       "default": "./dist/events.js"
     },
     "./provider": {
-      "development": "./src/provider.tsx",
       "types": "./dist/provider.d.ts",
       "import": "./dist/provider.js",
       "default": "./dist/provider.js"
