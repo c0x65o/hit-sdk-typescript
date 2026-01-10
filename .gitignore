@@ -177,7 +177,6 @@ next-env.d.ts
 .env.test.local
 .env.production.local
 
-dist/
 *.map
 .hit/service_tokens.json
 .hit/generated/.manifest_hash
